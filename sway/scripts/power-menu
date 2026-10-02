@@ -1,0 +1,18 @@
+#!/bin/bash
+# Session menu (Super+Shift+p / Super+Shift+e): fuzzel in dmenu mode, same look as the launcher.
+lock='swaylock -f -c 323A4C'
+sel=$(printf '%s\n' \
+    $'  Power off' \
+    $'  Restart' \
+    $'  Suspend' \
+    $'  Lock' \
+    $'  Log out' \
+  | fuzzel --dmenu --lines=5 --width=24 --prompt=$'  ' \
+      --placeholder='Session…' --match-mode=fuzzy) || exit 0
+case "${sel#*  }" in
+  'Power off') systemctl poweroff ;;
+  'Restart')   systemctl reboot ;;
+  'Suspend')   systemctl suspend ;;
+  'Lock')      $lock ;;
+  'Log out')   swaymsg exit ;;
+esac

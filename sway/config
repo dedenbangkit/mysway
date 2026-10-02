@@ -103,13 +103,13 @@ bindsym $mod+Ctrl+r reload
 ## Session // Lock Screen // <> Escape ##
 bindsym $mod+Escape exec $lock
 ## Session // Logout Menu // <><Shift> e ##
-bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Log out' 'swaymsg exit' -B 'Suspend' 'systemctl suspend' -B 'Reboot' 'systemctl reboot' -B 'Power off' 'systemctl poweroff'
+bindsym $mod+Shift+e exec ~/.config/sway/scripts/power-menu
 ## Session // Sleep // <><Shift> s ##
 bindsym $mod+Shift+s exec systemctl suspend
 ## Session // Reboot // <><Shift> b ##
 bindsym $mod+Shift+b exec swaynag -t warning -m 'Reboot?' -B 'Reboot' 'systemctl reboot'
-## Session // Power Down // <><Shift> p ##
-bindsym $mod+Shift+p exec swaynag -t warning -m 'Power off?' -B 'Power off' 'systemctl poweroff'
+## Session // Power Menu // <><Shift> p ##
+bindsym $mod+Shift+p exec ~/.config/sway/scripts/power-menu
 
 floating_modifier $mod normal
 
