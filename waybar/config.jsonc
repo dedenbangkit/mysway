@@ -151,9 +151,9 @@
     },
     "custom/screenshot": {
       "format": "",
-      "tooltip-format": "Screenshot area → ~/Pictures",
-      "on-click": "grim -g \"$(slurp)\" ~/Pictures/screenshot-$(date +%F-%H%M%S).png",
-      "on-click-right": "grim ~/Pictures/screenshot-$(date +%F-%H%M%S).png"
+      "tooltip-format": "Screenshot (Flameshot) → ~/Pictures/Screenshots\nRight-click: whole screen",
+      "on-click": "flameshot gui",
+      "on-click-right": "flameshot full"
     }
   }
 ]

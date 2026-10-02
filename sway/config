@@ -306,3 +306,6 @@ include /etc/sway/config.d/*
 
 # Pass session vars to systemd/D-Bus services (localsearch, used by Files, needs XDG_SESSION_CLASS)
 exec dbus-update-activation-environment --systemd XDG_SESSION_CLASS XDG_SESSION_TYPE XDG_SESSION_ID XDG_SESSION_DESKTOP
+
+# Flameshot (bottom bar camera button): its overlay must cover the whole screen
+for_window [app_id="flameshot"] border pixel 0, floating enable, fullscreen disable, move absolute position 0 0

@@ -1,0 +1,87 @@
+# mysway GRUB theme: black panel, blue accent, square corners (matches Sway/fuzzel)
+title-text: ""
+desktop-image: "background.png"
+desktop-color: "#000000"
+terminal-font: "JetBrainsMono NF Regular 22"
+terminal-box: "menu_*.png"
+terminal-left: "10%"
+terminal-top: "10%"
+terminal-width: "80%"
+terminal-height: "80%"
+terminal-border: "0"
+
++ label {
+    top = 22%
+    left = 0
+    width = 100%
+    height = 60
+    align = "center"
+    font = "JetBrainsMono NF Bold 44"
+    color = "#ffffff"
+    text = "ubuntu"
+}
+
++ label {
+    top = 22%+70
+    left = 0
+    width = 100%
+    height = 30
+    align = "center"
+    font = "JetBrainsMono NF Regular 22"
+    color = "#6c7380"
+    text = "26.04 · ZephyrusG16"
+}
+
++ boot_menu {
+    left = 30%
+    top = 35%
+    width = 40%
+    height = 24%
+    menu_pixmap_style = "menu_*.png"
+    item_font = "JetBrainsMono NF Regular 28"
+    selected_item_font = "JetBrainsMono NF Bold 28"
+    item_color = "#b8b8b8"
+    selected_item_color = "#ffffff"
+    selected_item_pixmap_style = "select_*.png"
+    item_height = 60
+    item_padding = 20
+    item_spacing = 6
+    icon_width = 0
+    icon_height = 0
+    item_icon_space = 0
+    scrollbar = false
+}
+
++ progress_bar {
+    id = "__timeout__"
+    left = 30%
+    top = 59%+24
+    width = 40%
+    height = 4
+    show_text = false
+    bar_style = "progress_bg_*.png"
+    highlight_style = "progress_hl_*.png"
+}
+
++ label {
+    id = "__timeout__"
+    top = 59%+44
+    left = 30%
+    width = 40%
+    height = 30
+    align = "center"
+    font = "JetBrainsMono NF Regular 22"
+    color = "#6c7380"
+    text = "booting in %d s"
+}
+
++ label {
+    top = 92%
+    left = 0
+    width = 100%
+    height = 30
+    align = "center"
+    font = "JetBrainsMono NF Regular 22"
+    color = "#4a5260"
+    text = "↑ ↓ select  •  enter boot  •  e edit  •  c console"
+}
