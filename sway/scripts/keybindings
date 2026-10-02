@@ -1,0 +1,6 @@
+#!/bin/sh
+# Show the "## Category // Action // Keys ##" comments from the sway config.
+grep -h '^## ' ~/.config/sway/config \
+  | sed -e 's/^## //' -e 's/ ##$//' -e 's#<>#Super+#' -e 's#<\([A-Za-z]*\)>#\1+#g' -e 's#+ #+#' \
+  | sed 's/ *\/\/ */\t/g' | column -t -s "$(printf '\t')" \
+  | fuzzel --dmenu --width=90 --lines=25 --prompt='keys ' >/dev/null

@@ -1,0 +1,8 @@
+#!/bin/sh
+# Pick an open window by name with fuzzel and focus it.
+sel=$(swaymsg -t get_tree | jq -r '
+  recurse(.nodes[]?, .floating_nodes[]?)
+  | select((.type == "con" or .type == "floating_con") and .pid != null)
+  | "\(.id)\t\(.app_id // .window_properties.class // "?")  —  \(.name)"' \
+  | fuzzel --dmenu --with-nth=2 --accept-nth=1 --prompt='window ') || exit 0
+swaymsg "[con_id=$sel] focus"

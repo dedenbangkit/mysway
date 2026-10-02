@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Random quote from the old my-i3wm quotes.json
+f=~/.config/waybar/data/quotes.json
+jq -r --argjson i $((RANDOM % $(jq length "$f"))) '.[$i]' "$f" | sed 's/&/\&amp;/g; s/</\&lt;/g'

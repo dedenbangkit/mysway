@@ -1,0 +1,308 @@
+# Sway config — Regolith-style keybindings
+# Reload with $mod+Shift+r. See `man 5 sway` for reference.
+
+### Variables
+set $mod Mod4
+set $left h
+set $down j
+set $up k
+set $right l
+set $term foot
+set $menu fuzzel
+set $scripts ~/.config/sway/scripts
+set $lock swaylock -f -c 323A4C
+
+### Look
+font pango:JetBrainsMono Nerd Font 10
+default_border pixel 3
+default_floating_border pixel 1
+gaps inner 0
+gaps outer 0
+hide_edge_borders smart
+
+# Colors from the old Regolith look (Adwaita palette)
+# class                 border  bg      text    indicator child_border
+client.focused          #2F2F2F #B8B8B8 #FFFFFF #3584E4   #B8B8B8
+client.focused_inactive #393939 #9A9996 #F6F5F4 #9A9996   #393939
+client.unfocused        #393939 #9A9996 #F6F5F4 #9A9996   #393939
+client.urgent           #393939 #E01B24 #FFFFFF #E01B24   #393939
+output * bg "~/Pictures/Wallpaper/Moody Black-and-White Mountain Panorama.png" fill
+output eDP-1 scale 1.5
+
+### Input
+# Focus changes only on click or keyboard, not when the pointer moves
+focus_follows_mouse no
+
+input type:keyboard {
+    xkb_layout us
+    xkb_options caps:swapescape,compose:ralt
+    repeat_delay 300
+    repeat_rate 40
+}
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+    dwt enabled
+    middle_emulation enabled
+}
+
+### Idle / lock: lock after 5 min, screen off after 10, lock before sleep
+exec swayidle -w \
+    timeout 300 '$lock' \
+    timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+    before-sleep '$lock'
+
+### Autostart
+exec mako
+exec kanshi
+exec nm-applet --indicator
+exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
+exec copyq --start-server
+exec ~/.config/sway/scripts/clip-persist
+for_window [app_id="com.github.hluk.copyq"] floating enable
+
+### Launchers
+## Launch // Terminal // <> Enter ##
+bindsym $mod+Return exec ~/Scripts/nt
+## Launch // Browser // <><Shift> Enter ##
+bindsym $mod+Shift+Return exec firefox
+## Launch // Application // <> Space ##
+bindsym $mod+space exec $menu
+## Launch // Application (drun) // <> d ##
+bindsym $mod+d exec $menu
+## Launch // Open Emacs // <> x ##
+bindsym $mod+x exec emacsclient -c -a ''
+## Launch // Keybinding Viewer // <><Shift> ? ##
+bindsym $mod+Shift+slash exec $scripts/keybindings
+## Navigate // Window by Name // <><Ctrl> Space ##
+bindsym $mod+Ctrl+space exec $scripts/window-switcher
+## Launch // File Browser // <> n ##
+bindsym $mod+n exec nautilus
+## Launch // Notification Viewer // <><Shift> n ##
+bindsym $mod+Shift+n exec makoctl restore
+
+### Settings (gnome-control-center needs to think it is on GNOME)
+## Modify // Settings // <> s ##
+bindsym $mod+s exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center
+## Modify // Wifi Settings // <> w ##
+bindsym $mod+w exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center wifi
+## Modify // Bluetooth Settings // <> b ##
+bindsym $mod+b exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center bluetooth
+## Modify // Toggle Bar // <> i ##
+bindsym $mod+i exec pkill -SIGUSR1 -x waybar
+
+### Session
+## Session // Exit App // <><Shift> q ##
+bindsym $mod+Shift+q kill
+## Session // Terminate App // <><Alt> q ##
+bindsym $mod+Alt+q exec kill -9 $(swaymsg -t get_tree | jq '.. | select(.focused? == true) | .pid')
+## Session // Reload Sway Config // <><Shift> r ##
+bindsym $mod+Shift+r reload
+## Session // Reload Sway Config // <><Ctrl> r ##
+bindsym $mod+Ctrl+r reload
+## Session // Lock Screen // <> Escape ##
+bindsym $mod+Escape exec $lock
+## Session // Logout Menu // <><Shift> e ##
+bindsym $mod+Shift+e exec swaynag -t warning -m 'Exit sway?' -B 'Log out' 'swaymsg exit' -B 'Suspend' 'systemctl suspend' -B 'Reboot' 'systemctl reboot' -B 'Power off' 'systemctl poweroff'
+## Session // Sleep // <><Shift> s ##
+bindsym $mod+Shift+s exec systemctl suspend
+## Session // Reboot // <><Shift> b ##
+bindsym $mod+Shift+b exec swaynag -t warning -m 'Reboot?' -B 'Reboot' 'systemctl reboot'
+## Session // Power Down // <><Shift> p ##
+bindsym $mod+Shift+p exec swaynag -t warning -m 'Power off?' -B 'Power off' 'systemctl poweroff'
+
+floating_modifier $mod normal
+
+### Focus / move (vim keys and arrows)
+## Navigate // Relative Window // <> k j h l ##
+bindsym $mod+$left focus left
+bindsym $mod+$down focus down
+bindsym $mod+$up focus up
+bindsym $mod+$right focus right
+## Navigate // Relative Window // <> ↑ ↓ ← → ##
+bindsym $mod+Left focus left
+bindsym $mod+Down focus down
+bindsym $mod+Up focus up
+bindsym $mod+Right focus right
+## Navigate // Relative Parent // <> a ##
+bindsym $mod+a focus parent
+## Navigate // Relative Child // <> z ##
+bindsym $mod+z focus child
+
+## Modify // Window Position // <><Shift> k j h l ##
+bindsym $mod+Shift+$left move left
+bindsym $mod+Shift+$down move down
+bindsym $mod+Shift+$up move up
+bindsym $mod+Shift+$right move right
+## Modify // Window Position // <><Shift> ↑ ↓ ← → ##
+bindsym $mod+Shift+Left move left
+bindsym $mod+Shift+Down move down
+bindsym $mod+Shift+Up move up
+bindsym $mod+Shift+Right move right
+## Modify // Containing Workspace to Output // <><Ctrl><Shift> k j h l ##
+bindsym $mod+Ctrl+Shift+$left move workspace to output left
+bindsym $mod+Ctrl+Shift+$down move workspace to output down
+bindsym $mod+Ctrl+Shift+$up move workspace to output up
+bindsym $mod+Ctrl+Shift+$right move workspace to output right
+## Modify // Containing Workspace to Output // <><Ctrl><Shift> ↑ ↓ ← → ##
+bindsym $mod+Ctrl+Shift+Left move workspace to output left
+bindsym $mod+Ctrl+Shift+Down move workspace to output down
+bindsym $mod+Ctrl+Shift+Up move workspace to output up
+bindsym $mod+Ctrl+Shift+Right move workspace to output right
+## Navigate // Move Entire Workspace to Output // <><Shift> < > ##
+bindsym $mod+Shift+comma move workspace to output left
+bindsym $mod+Shift+period move workspace to output right
+
+### Workspaces
+## Navigate // Workspaces 1-10 // <> 0..9 ##
+bindsym $mod+1 workspace number 1
+bindsym $mod+2 workspace number 2
+bindsym $mod+3 workspace number 3
+bindsym $mod+4 workspace number 4
+bindsym $mod+5 workspace number 5
+bindsym $mod+6 workspace number 6
+bindsym $mod+7 workspace number 7
+bindsym $mod+8 workspace number 8
+bindsym $mod+9 workspace number 9
+bindsym $mod+0 workspace number 10
+## Navigate // Workspaces 11-19 // <><Ctrl> 1..9 ##
+bindsym $mod+Ctrl+1 workspace number 11
+bindsym $mod+Ctrl+2 workspace number 12
+bindsym $mod+Ctrl+3 workspace number 13
+bindsym $mod+Ctrl+4 workspace number 14
+bindsym $mod+Ctrl+5 workspace number 15
+bindsym $mod+Ctrl+6 workspace number 16
+bindsym $mod+Ctrl+7 workspace number 17
+bindsym $mod+Ctrl+8 workspace number 18
+bindsym $mod+Ctrl+9 workspace number 19
+## Modify // Move Window to Workspace 1-10 // <><Shift> 0..9 ##
+bindsym $mod+Shift+1 move container to workspace number 1
+bindsym $mod+Shift+2 move container to workspace number 2
+bindsym $mod+Shift+3 move container to workspace number 3
+bindsym $mod+Shift+4 move container to workspace number 4
+bindsym $mod+Shift+5 move container to workspace number 5
+bindsym $mod+Shift+6 move container to workspace number 6
+bindsym $mod+Shift+7 move container to workspace number 7
+bindsym $mod+Shift+8 move container to workspace number 8
+bindsym $mod+Shift+9 move container to workspace number 9
+bindsym $mod+Shift+0 move container to workspace number 10
+## Modify // Move Window to Workspace 11-19 // <><Ctrl><Shift> 1..9 ##
+bindsym $mod+Ctrl+Shift+1 move container to workspace number 11
+bindsym $mod+Ctrl+Shift+2 move container to workspace number 12
+bindsym $mod+Ctrl+Shift+3 move container to workspace number 13
+bindsym $mod+Ctrl+Shift+4 move container to workspace number 14
+bindsym $mod+Ctrl+Shift+5 move container to workspace number 15
+bindsym $mod+Ctrl+Shift+6 move container to workspace number 16
+bindsym $mod+Ctrl+Shift+7 move container to workspace number 17
+bindsym $mod+Ctrl+Shift+8 move container to workspace number 18
+bindsym $mod+Ctrl+Shift+9 move container to workspace number 19
+## Modify // Carry Window to Workspace 1-10 // <><Alt> 0..9 ##
+bindsym $mod+Alt+1 move container to workspace number 1; workspace number 1
+bindsym $mod+Alt+2 move container to workspace number 2; workspace number 2
+bindsym $mod+Alt+3 move container to workspace number 3; workspace number 3
+bindsym $mod+Alt+4 move container to workspace number 4; workspace number 4
+bindsym $mod+Alt+5 move container to workspace number 5; workspace number 5
+bindsym $mod+Alt+6 move container to workspace number 6; workspace number 6
+bindsym $mod+Alt+7 move container to workspace number 7; workspace number 7
+bindsym $mod+Alt+8 move container to workspace number 8; workspace number 8
+bindsym $mod+Alt+9 move container to workspace number 9; workspace number 9
+bindsym $mod+Alt+0 move container to workspace number 10; workspace number 10
+## Modify // Carry Window to Workspace 11-19 // <><Alt><Ctrl> 1..9 ##
+bindsym $mod+Alt+Ctrl+1 move container to workspace number 11; workspace number 11
+bindsym $mod+Alt+Ctrl+2 move container to workspace number 12; workspace number 12
+bindsym $mod+Alt+Ctrl+3 move container to workspace number 13; workspace number 13
+bindsym $mod+Alt+Ctrl+4 move container to workspace number 14; workspace number 14
+bindsym $mod+Alt+Ctrl+5 move container to workspace number 15; workspace number 15
+bindsym $mod+Alt+Ctrl+6 move container to workspace number 16; workspace number 16
+bindsym $mod+Alt+Ctrl+7 move container to workspace number 17; workspace number 17
+bindsym $mod+Alt+Ctrl+8 move container to workspace number 18; workspace number 18
+bindsym $mod+Alt+Ctrl+9 move container to workspace number 19; workspace number 19
+
+## Navigate // Next Workspace // <> Tab ##
+bindsym $mod+Tab workspace next
+## Navigate // Previous Workspace // <><Shift> Tab ##
+bindsym $mod+Shift+Tab workspace prev
+## Navigate // Next Workspace // <><Alt> → ##
+bindsym $mod+Alt+Right workspace next
+## Navigate // Previous Workspace // <><Alt> ← ##
+bindsym $mod+Alt+Left workspace prev
+## Navigate // Next Workspace on Output // <><Ctrl> Tab ##
+bindsym $mod+Ctrl+Tab workspace next_on_output
+## Navigate // Previous Workspace on Output // <><Ctrl><Shift> Tab ##
+bindsym $mod+Ctrl+Shift+Tab workspace prev_on_output
+## Navigate // Next Workspace on Output // <><Ctrl> l ##
+bindsym $mod+Ctrl+l workspace next_on_output
+## Navigate // Previous Workspace on Output // <><Ctrl> h ##
+bindsym $mod+Ctrl+h workspace prev_on_output
+## Navigate // Next Free Workspace // <> ` ##
+bindsym $mod+grave exec $scripts/next-free-workspace go
+## Modify // Move Window to Next Free Workspace // <><Shift> ` ##
+bindsym $mod+Shift+grave exec $scripts/next-free-workspace move
+## Modify // Carry Window to Next Free Workspace // <><Alt> ` ##
+bindsym $mod+Alt+grave exec $scripts/next-free-workspace carry
+
+### Layout
+## Modify // Vertical Window Orientation // <> v ##
+bindsym $mod+v splitv
+## Modify // Horizontal Window Orientation // <> g ##
+bindsym $mod+g splith
+## Modify // Toggle Window Orientation // <> Backspace ##
+bindsym $mod+BackSpace split toggle
+## Modify // Window Layout Mode // <> t ##
+bindsym $mod+t layout toggle tabbed splith splitv
+## Modify // Window Fullscreen Toggle // <> f ##
+bindsym $mod+f fullscreen
+## Modify // Window Floating Toggle // <><Shift> f ##
+bindsym $mod+Shift+f floating toggle
+## Modify // Tile/Float Focus Toggle // <><Shift> t ##
+bindsym $mod+Shift+t focus mode_toggle
+
+### Gaps
+## Resize // Window Gaps // <> + - ##
+bindsym $mod+equal gaps inner current plus 6
+bindsym $mod+minus gaps inner current minus 6
+## Resize // Big Window Gaps // <><Shift> + - ##
+bindsym $mod+Shift+equal gaps inner current plus 12
+bindsym $mod+Shift+minus gaps inner current minus 12
+
+### Scratchpad
+## Modify // Move to Scratchpad // <><Ctrl> m ##
+bindsym $mod+Ctrl+m move scratchpad
+## Navigate // Scratchpad // <><Ctrl> a ##
+bindsym $mod+Ctrl+a scratchpad show
+
+### Resize mode
+## Resize // Enter Resize Mode // <> r ##
+mode "resize" {
+    bindsym $left resize shrink width 20px
+    bindsym $down resize grow height 20px
+    bindsym $up resize shrink height 20px
+    bindsym $right resize grow width 20px
+    bindsym Left resize shrink width 20px
+    bindsym Down resize grow height 20px
+    bindsym Up resize shrink height 20px
+    bindsym Right resize grow width 20px
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+r mode "resize"
+
+### Laptop keys
+bindsym XF86AudioRaiseVolume exec wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
+bindsym XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
+bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+
+### Screenshots (saved to ~/Pictures, also copied to clipboard)
+bindsym Print exec grim - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
+bindsym Shift+Print exec grim -g "$(slurp)" - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
+
+### Bar (two waybar bars: top + bottom, see ~/.config/waybar). Restarted on every reload.
+exec_always sh -c 'pkill -x waybar; exec waybar'
+
+include /etc/sway/config.d/*
+
+# Pass session vars to systemd/D-Bus services (localsearch, used by Files, needs XDG_SESSION_CLASS)
+exec dbus-update-activation-environment --systemd XDG_SESSION_CLASS XDG_SESSION_TYPE XDG_SESSION_ID XDG_SESSION_DESKTOP

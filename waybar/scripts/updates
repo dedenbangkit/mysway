@@ -1,0 +1,4 @@
+#!/bin/sh
+# Number of upgradable apt packages.
+n=$(apt list --upgradable 2>/dev/null | grep -c upgradable)
+printf '{"text":"%s","tooltip":"%s package(s) can be upgraded"}\n' "$n" "$n"

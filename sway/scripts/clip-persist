@@ -1,0 +1,4 @@
+#!/bin/sh
+# Keep the clipboard alive after the app you copied from closes (Wayland
+# drops it otherwise): when it goes empty, CopyQ puts its latest item back.
+exec wl-paste --watch sh -c 'cat >/dev/null; [ "$CLIPBOARD_STATE" = nil ] || [ "$CLIPBOARD_STATE" = clear ] && copyq select 0'

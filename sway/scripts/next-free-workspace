@@ -1,0 +1,11 @@
+#!/bin/sh
+# Usage: next-free-workspace [go|move|carry]
+# Finds the lowest-numbered workspace that does not exist yet.
+used=$(swaymsg -t get_workspaces | jq '.[].num')
+n=1
+while echo "$used" | grep -qx "$n"; do n=$((n+1)); done
+case "${1:-go}" in
+  go)    swaymsg workspace number "$n" ;;
+  move)  swaymsg move container to workspace number "$n" ;;
+  carry) swaymsg "move container to workspace number $n; workspace number $n" ;;
+esac

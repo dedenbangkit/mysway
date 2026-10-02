@@ -1,0 +1,159 @@
+// Waybar — ported from github.com/dedenbangkit/my-i3wm
+// top = main Regolith bar (conf.d), bottom = 71_bar_bottom (conf.d.bottom)
+[
+  {
+    "name": "top",
+    "fixed-center": false,
+    "layer": "top",
+    "position": "top",
+    "height": 24,
+    "spacing": 0,
+    "modules-left": [
+      "sway/workspaces",
+      "sway/mode"
+    ],
+    "modules-right": [
+      "sway/window",
+      "cpu",
+      "disk",
+      "memory",
+      "custom/updates",
+      "custom/notifications",
+      "network#traffic",
+      "network#ip",
+      "clock",
+      "battery",
+      "pulseaudio",
+      "tray"
+    ],
+    "sway/workspaces": {
+      "disable-scroll": true,
+      "all-outputs": false,
+      "format": "{name}"
+    },
+    "sway/mode": {
+      "format": " {}"
+    },
+    "sway/window": {
+      "format": "{title}",
+      "max-length": 50,
+      "rewrite": { "^[◐◓◑◒✳·*] (.*)": "$1" },
+      "icon": false
+    },
+    "cpu": {
+      "interval": 5,
+      "format": "<span color='#db0469'></span> {usage:02}%",
+      "on-click": "foot -e top"
+    },
+    "disk": {
+      "interval": 240,
+      "path": "/",
+      "format": "<span color='#d1c182'></span> {free}",
+      "on-click": "gnome-disks"
+    },
+    "memory": {
+      "interval": 10,
+      "format": "<span color='#d1c182'></span> {avail:0.1f}G",
+      "tooltip-format": "{used:0.1f}G used of {total:0.1f}G"
+    },
+    "custom/updates": {
+      "exec": "~/.config/waybar/scripts/updates",
+      "return-type": "json",
+      "interval": 3600,
+      "format": "<span color='#d1c182'></span> {}"
+    },
+    "custom/notifications": {
+      "exec": "~/.config/waybar/scripts/notifications",
+      "return-type": "json",
+      "interval": 10,
+      "format": "<span color='#c92c2c'></span> {}",
+      "on-click": "makoctl restore"
+    },
+    "network#traffic": {
+      "interval": 5,
+      "format-wifi": "<span color='#38ab03'></span> {bandwidthDownBytes}<span color='#38ab03'>▾</span> {bandwidthUpBytes}<span color='#38ab03'>▴</span>",
+      "format-ethernet": "<span color='#38ab03'>󰈀</span> {bandwidthDownBytes}<span color='#38ab03'>▾</span> {bandwidthUpBytes}<span color='#38ab03'>▴</span>",
+      "format-disconnected": "<span color='#c92c2c'>󰖪</span> offline",
+      "tooltip-format-wifi": "{essid} ({signalStrength}%)",
+      "on-click": "env XDG_CURRENT_DESKTOP=GNOME gnome-control-center wifi"
+    },
+    "network#ip": {
+      "interval": 30,
+      "format": "{ipaddr}",
+      "format-disconnected": "",
+      "tooltip-format": "{ifname} via {gwaddr}"
+    },
+    "clock": {
+      "interval": 10,
+      "format": "<span color='#c92c2c'></span>  {:%A %d %b %y %H:%M}",
+      "tooltip-format": "<tt>{calendar}</tt>",
+      "calendar": {
+        "mode": "month",
+        "format": {
+          "today": "<span color='#3584E4'><b>{}</b></span>"
+        }
+      }
+    },
+    "battery": {
+      "interval": 10,
+      "states": {
+        "warning": 50,
+        "critical": 20
+      },
+      "format": "<span color='#38ab03'>{icon}</span> {capacity}%",
+      "format-charging": "<span color='#38ab03'>󰂄</span> {capacity}%",
+      "format-icons": [
+        "",
+        "",
+        "",
+        "",
+        ""
+      ],
+      "tooltip-format": "{timeTo}"
+    },
+    "pulseaudio": {
+      "format": "<span color='#d1c182'>{icon}</span> {volume}%",
+      "format-muted": "<span color='#c92c2c'></span> mute",
+      "format-icons": {
+        "default": [
+          "",
+          "",
+          ""
+        ]
+      },
+      "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+      "on-click-right": "pavucontrol"
+    },
+    "tray": {
+      "icon-size": 14,
+      "spacing": 8
+    }
+  },
+  {
+    "name": "bottom",
+    "layer": "top",
+    "position": "bottom",
+    "height": 24,
+    "spacing": 0,
+    "modules-left": [
+      "custom/quote"
+    ],
+    "modules-right": [
+      "custom/screenshot"
+    ],
+    "custom/quote": {
+      "exec": "~/.config/waybar/scripts/quote",
+      "interval": 1200,
+      "format": "<span background='#998d5c' color='#2b2b2b'>  </span> {}",
+      "on-click": "pkill -RTMIN+8 waybar",
+      "signal": 8,
+      "tooltip": false
+    },
+    "custom/screenshot": {
+      "format": "",
+      "tooltip-format": "Screenshot area → ~/Pictures",
+      "on-click": "grim -g \"$(slurp)\" ~/Pictures/screenshot-$(date +%F-%H%M%S).png",
+      "on-click-right": "grim ~/Pictures/screenshot-$(date +%F-%H%M%S).png"
+    }
+  }
+]
