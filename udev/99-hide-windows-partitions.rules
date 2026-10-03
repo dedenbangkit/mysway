@@ -1,0 +1,5 @@
+# Hide the Windows partitions from Nautilus/udisks (no sidebar entry, no click-to-mount).
+# OS      = Windows C: (nvme0n1p3), RESTORE = ASUS factory restore image (nvme0n1p5).
+# Still mountable by hand: sudo mount -o ro /dev/disk/by-uuid/<UUID> /mnt
+ENV{ID_FS_UUID}=="8E4890F54890DD71", ENV{UDISKS_IGNORE}="1"
+ENV{ID_FS_UUID}=="EA02830D0282DE47", ENV{UDISKS_IGNORE}="1"
