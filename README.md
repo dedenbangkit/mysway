@@ -9,6 +9,7 @@ are symlinked into `~/.config`.
 | `waybar/` | Bar |
 | `foot/`, `fuzzel/` | Terminal, launcher |
 | `mpd/` | Music daemon |
+| `mpv/` | Video player: uosc UI + thumbfast thumbnails, black/square/blue (`install.sh` fetches scripts, sets default) |
 | `grub/` | GRUB theme + kernel params (`install.sh`) |
 | `session/` | "Sway (NVIDIA)" login entry (`install.sh`) |
 | `applications/` | Launcher-entry overrides, symlinked into `~/.local/share/applications/` (Slack `--disable-gpu`) |
