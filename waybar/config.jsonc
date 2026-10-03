@@ -18,7 +18,6 @@
       "disk",
       "memory",
       "custom/updates",
-      "custom/notifications",
       "network#traffic",
       "network#ip",
       "clock",
@@ -63,18 +62,11 @@
       "signal": 9,
       "format": "<span color='#d1c182'></span> {}"
     },
-    "custom/notifications": {
-      "exec": "~/.config/waybar/scripts/notifications",
-      "return-type": "json",
-      "interval": 10,
-      "format": "<span color='#c92c2c'></span> {}",
-      "on-click": "makoctl restore"
-    },
     "network#traffic": {
       "interval": 5,
-      "format-wifi": "<span color='#38ab03'></span> {bandwidthDownBytes}<span color='#38ab03'>▾</span> {bandwidthUpBytes}<span color='#38ab03'>▴</span>",
-      "format-ethernet": "<span color='#38ab03'>󰈀</span> {bandwidthDownBytes}<span color='#38ab03'>▾</span> {bandwidthUpBytes}<span color='#38ab03'>▴</span>",
-      "format-disconnected": "<span color='#c92c2c'>󰖪</span> offline",
+      "format-wifi": "<span color='#38ab03'></span>  {bandwidthDownBytes}<span color='#38ab03'>▾</span> {bandwidthUpBytes}<span color='#38ab03'>▴</span>",
+      "format-ethernet": "<span color='#38ab03'>󰈀</span>  {bandwidthDownBytes}<span color='#38ab03'>▾</span> {bandwidthUpBytes}<span color='#38ab03'>▴</span>",
+      "format-disconnected": "<span color='#c92c2c'>󰖪</span>  offline",
       "tooltip-format-wifi": "{essid} ({signalStrength}%)",
       "on-click": "env XDG_CURRENT_DESKTOP=GNOME gnome-control-center wifi"
     },
@@ -115,7 +107,7 @@
     },
     "pulseaudio": {
       "format": "<span color='#d1c182'>{icon}</span> {volume}%",
-      "format-muted": "<span color='#c92c2c'></span> mute",
+      "format-muted": "<span color='#c92c2c'></span> mute",
       "format-icons": {
         "default": [
           "",

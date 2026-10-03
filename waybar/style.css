@@ -32,7 +32,7 @@ tooltip { background: #2b2b2b; border: 1px solid #393939; }
 window#waybar.empty #window { padding: 0; }
 
 /* Status blocks */
-#clock, #tray, #cpu, #disk, #memory, #custom-notifications, #custom-updates,
+#clock, #tray, #cpu, #disk, #memory, #custom-updates,
 #network, #battery, #pulseaudio {
   padding: 0 9px;
 }

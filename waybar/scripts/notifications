@@ -1,4 +1,0 @@
-#!/bin/sh
-# Count of notifications in mako's history (like the old rofication block).
-n=$(makoctl history 2>/dev/null | grep -c '^Notification')
-printf '{"text":"%s","tooltip":"%s notification(s) — click to show last"}\n' "$n" "$n"
