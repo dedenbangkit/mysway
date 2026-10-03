@@ -1,0 +1,22 @@
+#!/bin/bash
+# Song picker (Super+Shift+m / right-click the bar's now playing): fuzzel over the MPD library.
+# The whole library is kept in the queue, so after the picked song it keeps playing the rest.
+mpc -q status >/dev/null 2>&1 || { notify-send 'Music' 'MPD is not running'; exit 1; }
+
+# empty queue: load the library, shuffled
+if [ -z "$(mpc playlist)" ]; then
+  mpc -q add /
+  mpc -q random on
+fi
+
+# "Artist - Title<TAB>path"; fuzzel shows the first column and returns the second
+file=$(mpc listall | awk '{ n = $0; sub(/.*\//, "", n); sub(/\.[^.]+$/, "", n); print n "\t" $0 }' \
+  | fuzzel --dmenu --with-nth=1 --accept-nth=2 --width=50 --prompt=$'  ' \
+      --placeholder='Play…' --match-mode=fuzzy) || exit 0
+
+pos=$(mpc playlist -f '%file%' | grep -nxF -- "$file" | head -1 | cut -d: -f1)
+if [ -z "$pos" ]; then
+  mpc -q add "$file"
+  pos=$(mpc playlist | wc -l)
+fi
+mpc -q play "$pos"

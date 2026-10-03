@@ -141,6 +141,9 @@
       "custom/quote"
     ],
     "modules-right": [
+      "mpd",
+      "custom/copyq",
+      "custom/record",
       "custom/screenshot"
     ],
     "custom/quote": {
@@ -150,6 +153,33 @@
       "on-click": "pkill -RTMIN+8 waybar",
       "signal": 8,
       "tooltip": false
+    },
+    "mpd": {
+      "format": "<span color='#d1c182'>\uf001</span>  {artist} - {title}",
+      "format-paused": "<span color='#d1c182'>\uf04c</span>  {artist} - {title}",
+      "format-stopped": "",
+      "format-disconnected": "",
+      "max-length": 60,
+      "interval": 5,
+      "tooltip-format": "{album}\nClick: play/pause · Middle-click: stop · Right-click: pick a song · Scroll: next/previous",
+      "on-click": "mpc -q toggle",
+      "on-click-middle": "mpc -q stop",
+      "on-click-right": "~/.config/sway/scripts/music",
+      "on-scroll-up": "mpc -q prev",
+      "on-scroll-down": "mpc -q next"
+    },
+    "custom/copyq": {
+      "format": "\uf0ea",
+      "tooltip-format": "Clipboard history (CopyQ)\nRight-click: menu",
+      "on-click": "copyq toggle",
+      "on-click-right": "copyq menu"
+    },
+    "custom/record": {
+      "exec": "~/.config/sway/scripts/record status",
+      "return-type": "json",
+      "interval": 2,
+      "signal": 10,
+      "on-click": "~/.config/sway/scripts/record"
     },
     "custom/screenshot": {
       "format": "",

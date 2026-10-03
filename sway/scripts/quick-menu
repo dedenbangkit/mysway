@@ -1,0 +1,34 @@
+#!/bin/bash
+# Quick menu (ROG key): fuzzel launcher for the everyday tools in this setup.
+scripts=~/.config/sway/scripts
+# floating terminal that stays open after the command finishes
+float() { foot --app-id=quick-float --hold "$@"; }
+
+if [ "$($scripts/record status 2>/dev/null | jq -r .class)" = recording ]; then
+  record=$'  Stop recording'
+else
+  record=$'  Record screen'
+fi
+
+sel=$(printf '%s\n' \
+    $'  Screenshot' \
+    "$record" \
+    $'  Play a song' \
+    $'  Play / pause music' \
+    $'  Clipboard history' \
+    $'  Time zones' \
+    $'  Check upgrades' \
+    $'  Power…' \
+  | fuzzel --dmenu --lines=8 --width=26 --prompt=$'  ' \
+      --placeholder='Quick…' --match-mode=fuzzy) || exit 0
+
+case "${sel#*  }" in
+  'Screenshot')             sleep 0.2; $scripts/screenshot ;;
+  'Record screen'|'Stop recording') $scripts/record ;;
+  'Play a song')            $scripts/music ;;
+  'Play / pause music')     mpc -q toggle ;;
+  'Clipboard history')      copyq toggle ;;
+  'Time zones')             float ~/.local/go/bin/tzone ;;
+  'Check upgrades')         float ~/Scripts/upgrades ;;
+  'Power…')                 $scripts/power-menu ;;
+esac
