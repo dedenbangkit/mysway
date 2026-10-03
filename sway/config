@@ -295,9 +295,10 @@ bindsym XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
 bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 
-### Screenshots (saved to ~/Pictures, also copied to clipboard)
-bindsym Print exec grim - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
-bindsym Shift+Print exec grim -g "$(slurp)" - | tee ~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png | wl-copy
+### Screenshots (saved to ~/Pictures, also copied to clipboard): Print = menu, Shift = area, Ctrl = window
+bindsym Print exec $scripts/screenshot
+bindsym Shift+Print exec $scripts/screenshot area
+bindsym Ctrl+Print exec $scripts/screenshot window
 
 ### Bar (two waybar bars: top + bottom, see ~/.config/waybar). Restarted on every reload.
 exec_always sh -c 'pkill -x waybar; exec waybar'
@@ -307,5 +308,3 @@ include /etc/sway/config.d/*
 # Pass session vars to systemd/D-Bus services (localsearch, used by Files, needs XDG_SESSION_CLASS)
 exec dbus-update-activation-environment --systemd XDG_SESSION_CLASS XDG_SESSION_TYPE XDG_SESSION_ID XDG_SESSION_DESKTOP
 
-# Flameshot (bottom bar camera button): its overlay must cover the whole screen
-for_window [app_id="flameshot"] border pixel 0, floating enable, fullscreen disable, move absolute position 0 0
