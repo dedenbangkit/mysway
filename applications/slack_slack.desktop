@@ -1,0 +1,15 @@
+[Desktop Entry]
+# Local override: --disable-gpu, otherwise Slack (snap, Wayland, NVIDIA driver loaded) runs with no window.
+X-SnapInstanceName=slack
+Name=Slack
+StartupWMClass=Slack
+Comment=Slack Desktop
+GenericName=Slack Client for Linux
+X-SnapAppName=slack
+Exec=/snap/bin/slack --disable-gpu %U
+Icon=/snap/slack/current/usr/share/pixmaps/slack.png
+Type=Application
+StartupNotify=true
+Categories=GNOME;GTK;Network;InstantMessaging;
+MimeType=x-scheme-handler/slack;
+
