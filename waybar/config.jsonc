@@ -139,14 +139,14 @@
       "format": "{app_id}|{title}",
       "max-length": 80,
       "rewrite": {
-        "^firefox[^|]*\\|(.*?)(?: — Mozilla Firefox)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
-        "^foot\\|(?!.* - Nvim$)(?:(?:◐|◓|◑|◒|✳|·|\\*) )?(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
-        "^foot\\|(.*) - Nvim$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
-        "^slack\\|(.*?)(?: - Slack)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
-        "^org\\.gnome\\.nautilus\\|(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
-        "^mpv\\|(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
-        "^emacs\\|(.*?)(?: (?:–|-) (?:Doom|GNU) Emacs.*)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
-        "^(?!firefox|foot\\||slack\\||org\\.gnome\\.nautilus\\||mpv\\||emacs\\|)[^|]*\\|(.+)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^firefox[^|]*\\|(.*?)(?: — Mozilla Firefox)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
+        "^foot\\|(?!.* - Nvim$)(?:(?:◐|◓|◑|◒|✳|·|\\*) )?(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
+        "^foot\\|(.*) - Nvim$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
+        "^slack\\|(.*?)(?: - Slack)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
+        "^org\\.gnome\\.nautilus\\|(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
+        "^mpv\\|(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
+        "^emacs\\|(.*?)(?: (?:–|-) (?:Doom|GNU) Emacs.*)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
+        "^(?!firefox|foot\\||slack\\||org\\.gnome\\.nautilus\\||mpv\\||emacs\\|)[^|]*\\|(.+)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> $1",
         "^\\|$": ""
       },
       "icon": false
@@ -155,7 +155,7 @@
     "custom/quote": {
       "exec": "~/.config/waybar/scripts/quote",
       "interval": 1200,
-      "format": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> {}",
+      "format": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='7168'></span> </span> {}",
       "on-click": "pkill -RTMIN+8 waybar",
       "signal": 8,
       "tooltip": false
