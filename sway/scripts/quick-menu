@@ -10,6 +10,11 @@ else
   record=$'  Record screen'
 fi
 
+# only offer "Lock vault" while the LUKS vault is unlocked
+vault=()
+lsblk -nro TYPE /dev/disk/by-partlabel/vault 2>/dev/null | grep -qx crypt &&
+  vault=($'  Lock vault')
+
 sel=$(printf '%s\n' \
     $'  Screenshot' \
     "$record" \
@@ -18,8 +23,9 @@ sel=$(printf '%s\n' \
     $'  Clipboard history' \
     $'  Time zones' \
     $'  Check upgrades' \
+    "${vault[@]}" \
     $'  Power…' \
-  | fuzzel --dmenu --lines=8 --width=26 --prompt=$'  ' \
+  | fuzzel --dmenu --lines=$((8 + ${#vault[@]})) --width=26 --prompt=$'  ' \
       --placeholder='Quick…' --match-mode=fuzzy) || exit 0
 
 case "${sel#*  }" in
@@ -30,5 +36,8 @@ case "${sel#*  }" in
   'Clipboard history')      copyq toggle ;;
   'Time zones')             float ~/.local/go/bin/tzone ;;
   'Check upgrades')         float ~/Scripts/upgrades ;;
+  'Lock vault')
+    if $scripts/vault-lock; then notify-send -i changes-prevent 'Vault locked'
+    else notify-send -u critical 'Vault not locked' 'Something is still using it (a terminal or app open in it?)'; fi ;;
   'Power…')                 $scripts/power-menu ;;
 esac

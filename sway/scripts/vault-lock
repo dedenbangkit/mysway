@@ -1,0 +1,15 @@
+#!/bin/sh
+# Lock the LUKS vault (nvme0n1p9, partlabel "vault") if it's unlocked.
+# Run by power-menu before logging out; exits non-zero if it couldn't lock.
+part=/dev/disk/by-partlabel/vault
+[ -e "$part" ] || exit 0
+clear=$(lsblk -nrpo NAME,TYPE "$part" | awk '$2 == "crypt" { print $1 }')
+[ -n "$clear" ] || exit 0
+
+# Nautilus keeps files open on the vault; it'd be closed by the logout anyway
+nautilus -q 2>/dev/null && sleep 0.5
+
+if findmnt -rn -S "$clear" >/dev/null; then
+  udisksctl unmount -b "$clear" --no-user-interaction || exit 1
+fi
+udisksctl lock -b "$part" --no-user-interaction

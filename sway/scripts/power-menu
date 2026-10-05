@@ -1,12 +1,12 @@
 #!/bin/bash
 # Session menu (Super+Shift+p / Super+Shift+e): fuzzel in dmenu mode, same look as the launcher.
-lock='swaylock -f -c 323A4C'
+lock='swaylock -f'
 sel=$(printf '%s\n' \
     $'  Power off' \
     $'  Restart' \
     $'  Suspend' \
     $'  Lock' \
-    $'  Log out' \
+$'  Log out' \
   | fuzzel --dmenu --lines=5 --width=24 --prompt=$'  ' \
       --placeholder='Session…' --match-mode=fuzzy) || exit 0
 case "${sel#*  }" in
@@ -14,5 +14,11 @@ case "${sel#*  }" in
   'Restart')   systemctl reboot ;;
   'Suspend')   systemctl suspend ;;
   'Lock')      $lock ;;
-  'Log out')   swaymsg exit ;;
+  'Log out')
+    # Lock the encrypted vault first; stay logged in if something still uses it
+    if ! "$(dirname "$0")/vault-lock"; then
+      notify-send -u critical 'Vault still in use' 'Close files on the vault, then log out again.'
+      exit 1
+    fi
+    swaymsg exit ;;
 esac
