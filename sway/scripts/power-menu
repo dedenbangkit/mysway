@@ -6,7 +6,7 @@ sel=$(printf '%s\n' \
     $'  Restart' \
     $'  Suspend' \
     $'  Lock' \
-$'  Log out' \
+    $'  Log out' \
   | fuzzel --dmenu --lines=5 --width=24 --prompt=$'  ' \
       --placeholder='Session…' --match-mode=fuzzy) || exit 0
 case "${sel#*  }" in
