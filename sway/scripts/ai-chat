@@ -1,4 +1,10 @@
 #!/bin/sh
 # Copilot key: local AI chat (oterm on Ollama) in a floating window that
 # hides/shows from the scratchpad; started on first press.
-swaymsg -q '[app_id="oterm"] scratchpad show' 2>/dev/null || exec foot --app-id=oterm ~/.local/bin/oterm
+# Ollama isn't started at boot (and stop-ollama may have stopped it): start
+# the user service every time; a no-op when it's already running.
+systemctl --user start ollama
+swaymsg -q '[app_id="oterm"] scratchpad show' 2>/dev/null && exit
+# fresh oterm needs the server answering before it lists models
+for _ in $(seq 40); do curl -sf -o /dev/null http://127.0.0.1:11434/ && break; sleep 0.25; done
+exec foot --app-id=oterm ~/.local/bin/oterm

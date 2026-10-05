@@ -1,0 +1,19 @@
+# Ollama as a user service, tuned for the RTX 5060 (8 GB). Not started at
+# boot: the Copilot key (sway/scripts/ai-chat) and `summarize` start it on
+# demand; `stop-ollama` stops it. Linked by install.sh into
+# ~/.config/systemd/user/.
+[Unit]
+Description=Ollama (local LLM server)
+
+[Service]
+ExecStart=/usr/local/bin/ollama serve
+Restart=on-failure
+# Models on /home, not the small / partition
+Environment="OLLAMA_MODELS=%h/.ollama/models"
+# Halve the memory a conversation takes, so more stays on the GPU
+Environment="OLLAMA_FLASH_ATTENTION=1"
+Environment="OLLAMA_KV_CACHE_TYPE=q8_0"
+# Enough for chat (Sahabat-AI's own limit); summaries ask for more per request
+Environment="OLLAMA_CONTEXT_LENGTH=8192"
+# Free the GPU (it also drives HDMI) after 5 idle minutes
+Environment="OLLAMA_KEEP_ALIVE=5m"

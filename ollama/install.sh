@@ -1,8 +1,8 @@
 #!/bin/sh
-# Install the Ollama service override and restart it. Run with sudo.
+# Link the Ollama user service (no sudo). It is deliberately not enabled:
+# ai-chat and summarize start it when needed.
 set -e
-cd "$(dirname "$0")"
-install -Dm644 override.conf /etc/systemd/system/ollama.service.d/override.conf
-systemctl daemon-reload
-systemctl restart ollama
-systemctl --no-pager --lines=0 status ollama
+mkdir -p ~/.config/systemd/user
+ln -sf "$(realpath "$(dirname "$0")")/ollama.service" ~/.config/systemd/user/ollama.service
+systemctl --user daemon-reload
+echo "Linked. Start: systemctl --user start ollama   Stop: stop-ollama"
