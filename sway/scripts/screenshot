@@ -1,6 +1,6 @@
 #!/bin/bash
 # Screenshot (Print / bottom bar camera button): area, window or entire screen.
-# Saved to ~/Pictures and copied to the clipboard.
+# Saved to ~/Pictures/Screenshots as JPEG and copied to the clipboard.
 # Usage: screenshot [area|window|screen]   (no argument: pick from a fuzzel menu)
 mode=$1
 if [ -z "$mode" ]; then
@@ -32,9 +32,12 @@ case "$mode" in
     echo "usage: screenshot [area|window|screen]" >&2; exit 1 ;;
 esac
 
-file=~/Pictures/screenshot-$(date +%Y%m%d-%H%M%S).png
+dir=~/Pictures/Screenshots
+mkdir -p "$dir"
+file=$dir/screenshot-$(date +%Y%m%d-%H%M%S).jpg
+# Ubuntu's grim is built without JPEG support: capture raw PPM, encode with ffmpeg
 if [ -n "$geom" ]; then
-  grim -g "$geom" "$file"
+  grim -t ppm -g "$geom" -
 else
-  grim -o "$output" "$file"
-fi && wl-copy < "$file" && notify-send -i "$file" 'Screenshot' "Saved to ${file/#$HOME/~} and copied"
+  grim -t ppm -o "$output" -
+fi | ffmpeg -loglevel error -f ppm_pipe -i - -q:v 3 "$file" && wl-copy -t image/jpeg < "$file" && notify-send -i "$file" 'Screenshot' "Saved to ${file/#$HOME/~} and copied"

@@ -312,7 +312,7 @@ for_window [app_id="quick-float"] floating enable, resize set 1400 700
 bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 
-### Screenshots (saved to ~/Pictures, also copied to clipboard): Print = menu, Shift = area, Ctrl = window
+### Screenshots (saved to ~/Pictures/Screenshots as JPEG, also copied to clipboard): Print = menu, Shift = area, Ctrl = window
 bindsym Print exec $scripts/screenshot
 bindsym Shift+Print exec $scripts/screenshot area
 bindsym Ctrl+Print exec $scripts/screenshot window
