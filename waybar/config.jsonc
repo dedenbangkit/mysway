@@ -13,7 +13,6 @@
       "sway/mode"
     ],
     "modules-right": [
-      "sway/window",
       "cpu",
       "disk",
       "memory",
@@ -32,12 +31,6 @@
     },
     "sway/mode": {
       "format": " {}"
-    },
-    "sway/window": {
-      "format": "{title}",
-      "max-length": 50,
-      "rewrite": { "^[◐◓◑◒✳·*] (.*)": "$1" },
-      "icon": false
     },
     "cpu": {
       "interval": 5,
@@ -130,7 +123,7 @@
     "height": 24,
     "spacing": 0,
     "modules-left": [
-      "custom/quote"
+      "sway/window"
     ],
     "modules-right": [
       "mpd",
@@ -138,10 +131,30 @@
       "custom/record",
       "custom/screenshot"
     ],
+    // Focused window: app icon in an inverted gold block (like the quote had) + title cropped at max-length.
+    // Every rule matching the raw "app_id|title" is applied, so the rules must not overlap:
+    // the last one is the fallback for apps not listed above it.
+    "sway/window": {
+      "format": "{app_id}|{title}",
+      "max-length": 80,
+      "rewrite": {
+        "^firefox[^|]*\\|(.*?)(?: — Mozilla Firefox)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^foot\\|(?!.* - Nvim$)(?:(?:◐|◓|◑|◒|✳|·|\\*) )?(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^foot\\|(.*) - Nvim$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^slack\\|(.*?)(?: - Slack)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^org\\.gnome\\.nautilus\\|(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^mpv\\|(.*)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^emacs\\|(.*?)(?: (?:–|-) (?:Doom|GNU) Emacs.*)?$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^(?!firefox|foot\\||slack\\||org\\.gnome\\.nautilus\\||mpv\\||emacs\\|)[^|]*\\|(.+)$": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> $1",
+        "^\\|$": ""
+      },
+      "icon": false
+    },
+    // Quote is off for now (not in modules-left); config kept to switch it back on.
     "custom/quote": {
       "exec": "~/.config/waybar/scripts/quote",
       "interval": 1200,
-      "format": "<span background='#998d5c' color='#2b2b2b'>  </span> {}",
+      "format": "<span background='#998d5c' color='#2b2b2b'> <span letter_spacing='6656'></span> </span> {}",
       "on-click": "pkill -RTMIN+8 waybar",
       "signal": 8,
       "tooltip": false
