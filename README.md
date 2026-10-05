@@ -11,6 +11,7 @@ are symlinked into `~/.config`.
 | `mpd/` | Music daemon |
 | `mpv/` | Video player: uosc UI + thumbfast thumbnails, black/square/blue (`install.sh` fetches scripts, sets default) |
 | `yazi/` | File manager: duckdb.yazi table previews for csv/tsv/parquet/xlsx (needs `duckdb` CLI in `~/.local/bin`; plugin patched for DuckDB 1.5 lambda syntax, so `ya pkg upgrade` undoes it) |
+| `copyq/` | Clipboard manager settings: no tray, main window hidden on start, black/square/blue theme (`[Theme]` section). Only `copyq.conf` is symlinked into `~/.config/copyq/` (the rest of that folder is history and keys) |
 | `grub/` | GRUB theme + kernel params (`install.sh`) |
 | `session/` | "Sway (NVIDIA)" login entry (`install.sh`) |
 | `applications/` | Launcher-entry overrides, symlinked into `~/.local/share/applications/` (Slack `--disable-gpu`) |

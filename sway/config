@@ -63,6 +63,8 @@ exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 exec copyq --start-server
 exec ~/.config/sway/scripts/clip-persist
 for_window [app_id="com.github.hluk.copyq"] floating enable
+## Launch // Clipboard History // <> v ##
+bindsym $mod+v exec copyq toggle
 
 ### Launchers
 ## Launch // Terminal // <> Enter ##
@@ -245,8 +247,6 @@ bindsym $mod+Shift+grave exec $scripts/next-free-workspace move
 bindsym $mod+Alt+grave exec $scripts/next-free-workspace carry
 
 ### Layout
-## Modify // Vertical Window Orientation // <> v ##
-bindsym $mod+v splitv
 ## Modify // Horizontal Window Orientation // <> g ##
 bindsym $mod+g splith
 ## Modify // Toggle Window Orientation // <> Backspace ##
