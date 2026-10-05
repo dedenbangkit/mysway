@@ -6,7 +6,7 @@ StartupWMClass=Slack
 Comment=Slack Desktop
 GenericName=Slack Client for Linux
 X-SnapAppName=slack
-Exec=/snap/bin/slack --disable-gpu %U
+Exec=env PIPEWIRE_CONFIG_DIR=/home/dedenbangkit/snap/slack/common/pipewire PIPEWIRE_MODULE_DIR=/snap/slack/current/usr/lib/x86_64-linux-gnu/pipewire-0.3 SPA_PLUGIN_DIR=/snap/slack/current/usr/lib/x86_64-linux-gnu/spa-0.2 /snap/bin/slack --disable-gpu --enable-features=WebRTCPipeWireCapturer %U
 Icon=/snap/slack/current/usr/share/pixmaps/slack.png
 Type=Application
 StartupNotify=true
