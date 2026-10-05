@@ -1,0 +1,50 @@
+# System monitor (btm). Basic mode (text bars, no graphs), black/square/blue.
+# Keys: j/k move, h/l switch panel, c/m sort by CPU/memory, I reverse,
+# / search, dd kill, e expand panel, ? help, q quit.
+
+[flags]
+basic = true
+hide_table_gap = true
+hide_k_threads = true
+show_table_scroll_position = true
+rate = "1s"
+
+[processes]
+columns = ["PID", "Name", "CPU%", "Mem%", "R/s", "W/s", "T.Read", "T.Write", "User"]
+
+[styles.cpu]
+all_entry_color = "#3584e4"
+avg_entry_color = "#3584e4"
+cpu_core_colors = ["#3584e4"]
+
+[styles.memory]
+ram_color = "#3584e4"
+cache_color = "#6c7380"
+swap_color = "#f6d32d"
+
+[styles.network]
+rx_color = "#3584e4"
+tx_color = "#f6d32d"
+rx_total_color = "#6c7380"
+tx_total_color = "#6c7380"
+
+[styles.battery]
+high_battery_color = "#3584e4"
+medium_battery_color = "#f6d32d"
+low_battery_color = "#e01b24"
+
+[styles.tables]
+headers = {color = "#ffffff", bold = true}
+
+[styles.graphs]
+graph_color = "#333333"
+legend_text = {color = "#6c7380"}
+
+[styles.widgets]
+border_color = "#333333"
+selected_border_color = "#3584e4"
+widget_title = {color = "#b8b8b8"}
+text = {color = "#b8b8b8"}
+selected_text = {color = "#ffffff", bg_color = "#3584e4"}
+disabled_text = {color = "#5e5c64"}
+thread_text = {color = "#6c7380"}
