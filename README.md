@@ -16,6 +16,7 @@ are symlinked into `~/.config`.
 | `oterm/` | Terminal chat for Ollama on the Copilot key (`sway/scripts/ai-chat`, floating scratchpad window); `ansi-dark` theme follows foot colours. Only `config.json` is symlinked into `~/.local/share/oterm/` (chats live there too) |
 | `copyq/` | Clipboard manager settings: no tray, main window hidden on start, black/square/blue theme (`[Theme]` section). Only `copyq.conf` is symlinked into `~/.config/copyq/` (the rest of that folder is history and keys) |
 | `grub/` | GRUB theme + kernel params (`install.sh`) |
+| `gdm/` | Login screen: black background, smaller logo, black/square/blue fields and buttons (`install.sh`) |
 | `session/` | "Sway (NVIDIA)" login entry (`install.sh`) |
 | `applications/` | Launcher-entry overrides, symlinked into `~/.local/share/applications/` (Slack `--disable-gpu`) |
 | `udev/` | Hide Windows OS/RESTORE partitions from Nautilus (`install.sh`) |

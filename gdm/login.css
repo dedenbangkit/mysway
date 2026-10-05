@@ -1,0 +1,143 @@
+
+/* ---- mysway: login screen (appended to Yaru's gdm.css by install.sh) ----
+ * Same look as fuzzel/swaylock: black, square, thin grey outline, #3584E4 blue for
+ * focus and selection, JetBrainsMono. Selectors repeat Yaru's so these win by order. */
+
+.login-dialog {
+  font-family: "JetBrainsMono Nerd Font", monospace;
+}
+
+/* Password / username field */
+.login-dialog .login-dialog-prompt-entry,
+.login-dialog .login-dialog-prompt-entry:hover,
+.login-dialog .login-dialog-prompt-entry:insensitive {
+  border-radius: 0;
+  background-color: #000000;
+  color: #f2f2f2;
+  box-shadow: inset 0 0 0 1px #5e5c64 !important;
+  selection-background-color: #3584e4;
+  selected-color: #ffffff;
+}
+.login-dialog .login-dialog-prompt-entry:focus {
+  background-color: #000000;
+  color: #ffffff;
+  box-shadow: inset 0 0 0 2px #3584e4 !important;
+}
+.login-dialog .login-dialog-prompt-entry StLabel.hint-text {
+  color: #77767b;
+}
+.login-dialog .caps-lock-warning-label,
+.login-dialog .login-dialog-message-warning {
+  color: #3584e4;
+}
+
+/* Back arrow, session gear, accessibility, auth-menu buttons */
+.login-dialog-button.login-dialog-auth-menu-button,
+.login-dialog-button.web-login-intro-button,
+.login-dialog-button.a11y-button,
+.login-dialog-button.cancel-button,
+.login-dialog-button.switch-user-button,
+.login-dialog-button.login-dialog-session-list-button {
+  border-radius: 0;
+  color: #f2f2f2;
+  background-color: #000000;
+  box-shadow: inset 0 0 0 1px #5e5c64 !important;
+}
+.login-dialog-button.login-dialog-auth-menu-button:focus,
+.login-dialog-button.web-login-intro-button:focus,
+.login-dialog-button.a11y-button:focus,
+.login-dialog-button.cancel-button:focus,
+.login-dialog-button.switch-user-button:focus,
+.login-dialog-button.login-dialog-session-list-button:focus {
+  color: #ffffff;
+  background-color: #000000;
+  box-shadow: inset 0 0 0 2px #3584e4 !important;
+}
+.login-dialog-button.login-dialog-auth-menu-button:hover,
+.login-dialog-button.web-login-intro-button:hover,
+.login-dialog-button.a11y-button:hover,
+.login-dialog-button.cancel-button:hover,
+.login-dialog-button.switch-user-button:hover,
+.login-dialog-button.login-dialog-session-list-button:hover,
+.login-dialog-button.login-dialog-auth-menu-button:active,
+.login-dialog-button.web-login-intro-button:active,
+.login-dialog-button.a11y-button:active,
+.login-dialog-button.cancel-button:active,
+.login-dialog-button.switch-user-button:active,
+.login-dialog-button.login-dialog-session-list-button:active,
+.login-dialog-button.login-dialog-session-list-button:checked {
+  color: #ffffff;
+  background-color: #3584e4;
+  box-shadow: none !important;
+}
+
+/* User list and "Not listed?" */
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item,
+.login-dialog-not-listed-button {
+  border-radius: 0;
+  color: #f2f2f2;
+  background-color: #000000;
+  box-shadow: inset 0 0 0 1px #5e5c64 !important;
+}
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:selected,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:focus,
+.login-dialog-not-listed-button:focus {
+  background-color: #000000;
+  box-shadow: inset 0 0 0 2px #3584e4 !important;
+}
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:active,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:selected:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:focus:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:active:hover,
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:active:focus,
+.login-dialog-not-listed-button:hover,
+.login-dialog-not-listed-button:active,
+.login-dialog-not-listed-button:focus:hover,
+.login-dialog-not-listed-button:active:hover,
+.login-dialog-not-listed-button:active:focus {
+  color: #ffffff;
+  background-color: #3584e4;
+  box-shadow: none !important;
+}
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item .login-dialog-timed-login-indicator {
+  background-color: #3584e4;
+}
+.login-dialog-user-list-view .login-dialog-user-list .login-dialog-user-list-item:logged-in .user-icon {
+  border-color: #3584e4;
+}
+
+/* Avatars: square like everything else */
+.login-dialog .user-icon,
+.login-dialog .user-widget .user-icon {
+  border-radius: 0;
+  background-color: #1a1a1a;
+}
+.login-dialog .user-widget .user-widget-label {
+  font-weight: 400;
+}
+
+/* Session menu (gear) */
+.popup-menu-boxpointer,
+.popup-menu {
+  -arrow-border-radius: 0;
+}
+.popup-menu .popup-menu-content {
+  border-radius: 0;
+  background-color: #000000;
+  box-shadow: none;
+  border: 2px solid #3584e4;
+  padding: 4px;
+  font-family: "JetBrainsMono Nerd Font", monospace;
+}
+.popup-menu .popup-menu-item {
+  border-radius: 0;
+  color: #f2f2f2;
+}
+.popup-menu .popup-menu-item:hover,
+.popup-menu .popup-menu-item:focus,
+.popup-menu .popup-menu-item:active,
+.popup-menu .popup-menu-item:checked {
+  color: #ffffff;
+  background-color: #3584e4;
+}
