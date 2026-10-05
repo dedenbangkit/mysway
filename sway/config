@@ -62,6 +62,8 @@ exec nm-applet --indicator
 exec /usr/lib/policykit-1-gnome/polkit-gnome-authentication-agent-1
 exec copyq --start-server
 exec ~/.config/sway/scripts/clip-persist
+# Uses the slack_slack.desktop override (--disable-gpu, PipeWire env for screen share)
+exec gtk-launch slack_slack
 for_window [app_id="com.github.hluk.copyq"] floating enable
 ## Launch // Clipboard History // <> v ##
 bindsym $mod+v exec copyq toggle
