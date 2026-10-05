@@ -1,0 +1,15 @@
+# duckdb.yazi: H/L scroll the table preview by column (replaces history back/forward)
+[[mgr.prepend_keymap]]
+on = "H"
+run = "plugin duckdb -1"
+desc = "Scroll table preview one column left"
+
+[[mgr.prepend_keymap]]
+on = "L"
+run = "plugin duckdb +1"
+desc = "Scroll table preview one column right"
+
+[[mgr.prepend_keymap]]
+on = ["g", "o"]
+run = "plugin duckdb -open"
+desc = "Open file in duckdb"
