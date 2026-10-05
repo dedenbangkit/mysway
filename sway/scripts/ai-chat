@@ -1,0 +1,4 @@
+#!/bin/sh
+# Copilot key: local AI chat (oterm on Ollama) in a floating window that
+# hides/shows from the scratchpad; started on first press.
+swaymsg -q '[app_id="oterm"] scratchpad show' 2>/dev/null || exec foot --app-id=oterm ~/.local/bin/oterm

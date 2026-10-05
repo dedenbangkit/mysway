@@ -309,6 +309,12 @@ for_window [app_id="rmpc"] floating enable, resize set 1000 640
 ### ROG key (keycode 156, no keysym of its own): quick menu
 bindcode 156 exec $scripts/quick-menu
 for_window [app_id="quick-float"] floating enable, resize set 1400 700
+
+### Copilot key (sends Super+Shift+F23; F23 = keycode 201): local AI chat
+## Launch // Local AI Chat // Copilot ##
+bindcode --no-repeat $mod+Shift+201 exec $scripts/ai-chat
+for_window [app_id="oterm"] floating enable, resize set 1100 750, move position center, move scratchpad, scratchpad show
+
 bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
 bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
 
