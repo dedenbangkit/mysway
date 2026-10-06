@@ -1,0 +1,29 @@
+#!/bin/bash
+# Timezone popup (Super+z): floating foot running tzone, sized to fit it exactly.
+# Press any key (or Super+z again) to close; it redraws every minute while open.
+HOURS=12  # hour cells per row, keep it even
+export PATH="$HOME/.local/go/bin:$PATH"  # sway's PATH has no Go bin dir
+
+if [ "$1" = show ]; then
+  printf '\e[?25l'  # hide the cursor
+  # tzone reads the width once, so wait for foot to reach its final size first
+  for _ in $(seq 20); do [ "$(tput cols)" = "$2" ] && break; sleep 0.05; done
+  while :; do
+    printf '\e[H\e[2J'
+    tzone
+    read -rsn1 -t 60 && exit 0
+  done
+fi
+
+if swaymsg -t get_tree | grep -q '"app_id": "tzone"'; then
+  swaymsg -q '[app_id="tzone"] kill'
+  exit 0
+fi
+
+# tzone row: " <name> " then 7 columns per hour cell (" 09AM " + gap)
+zones=$(grep -c 'tz:' ~/.tzone)
+name=$(sed -n 's/^ *name: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' ~/.tzone | awk '{ if (length > m) m = length } END { print m }')
+cols=$(( name + 2 + HOURS * 7 ))
+rows=$(( zones * 2 + 2 ))  # blank line on top, cursor line at the bottom
+
+exec foot --app-id=tzone --window-size-chars="${cols}x${rows}" "$0" show "$cols"

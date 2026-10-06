@@ -136,8 +136,8 @@ bindsym $mod+Up focus up
 bindsym $mod+Right focus right
 ## Navigate // Relative Parent // <> a ##
 bindsym $mod+a focus parent
-## Navigate // Relative Child // <> z ##
-bindsym $mod+z focus child
+## Navigate // Relative Child // <><Shift> a ##
+bindsym $mod+Shift+a focus child
 
 ## Modify // Window Position // <><Shift> k j h l ##
 bindsym $mod+Shift+$left move left
@@ -314,6 +314,10 @@ for_window [app_id="rmpc"] floating enable, resize set 1000 640
 ### ROG key (keycode 156, no keysym of its own): quick menu
 bindcode 156 exec $scripts/quick-menu
 for_window [app_id="quick-float"] floating enable, resize set 1400 700
+
+## Launch // Timezones // <> z ##
+bindsym $mod+z exec $scripts/tzone
+for_window [app_id="tzone"] floating enable, move position center
 
 ### Copilot key (sends Super+Shift+F23; F23 = keycode 201): local AI chat
 ## Launch // Local AI Chat // Copilot ##
