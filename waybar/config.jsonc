@@ -19,6 +19,7 @@
       "custom/updates",
       "network#traffic",
       "network#ip",
+      "custom/meeting",
       "clock",
       "battery",
       "pulseaudio",
@@ -54,6 +55,15 @@
       "interval": 3600,
       "signal": 9,
       "format": "<span color='#d1c182'></span> {}"
+    },
+    // Current/next meeting, up to a week ahead (scripts/next-meeting; reads a cache, Google at
+    // most every 5 min). Click: calendar popup (Super+c).
+    "custom/meeting": {
+      "exec": "~/.config/waybar/scripts/next-meeting",
+      "return-type": "json",
+      "interval": 60,
+      "format": "<span color='#3584E4'>󰃰</span>  {}",
+      "on-click": "~/.config/sway/scripts/calendar"
     },
     "network#traffic": {
       "interval": 5,
