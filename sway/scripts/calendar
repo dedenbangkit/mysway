@@ -1,0 +1,29 @@
+#!/bin/bash
+# Calendar popup (Super+c): floating foot running gday, sized to its output.
+# Press any key (or Super+c again) to close; it refreshes every minute while open.
+export PATH="$HOME/.local/bin:$PATH"  # gcalcli is a pipx app
+here="$(dirname "$(readlink -f "$0")")"
+cache="${XDG_RUNTIME_DIR:-/tmp}/gday.txt"
+
+if [ "$1" = show ]; then
+  printf '\e[?25l'  # hide the cursor
+  while :; do
+    printf '\e[H\e[2J'
+    cat "$cache"
+    read -rsn1 -t 60 && exit 0
+    "$here/gday" > "$cache.new" 2>&1 && mv "$cache.new" "$cache"
+  done
+fi
+
+if swaymsg -t get_tree | grep -q '"app_id": "gday"'; then
+  swaymsg -q '[app_id="gday"] kill'
+  exit 0
+fi
+
+# draw once up front so the window can be sized to the output
+"$here/gday" > "$cache" 2>&1
+plain=$(sed 's/\x1b\[[0-9;]*m//g' "$cache")
+cols=$(( $(printf '%s\n' "$plain" | awk '{ if (length > m) m = length } END { print m }') + 1 ))
+rows=$(( $(wc -l < "$cache") + 1 ))
+
+exec foot --app-id=gday --window-size-chars="${cols}x${rows}" "$0" show

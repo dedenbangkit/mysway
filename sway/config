@@ -319,6 +319,10 @@ for_window [app_id="quick-float"] floating enable, resize set 1400 700
 bindsym $mod+z exec $scripts/tzone
 for_window [app_id="tzone"] floating enable, move position center
 
+## Launch // Calendar // <> c ##
+bindsym $mod+c exec $scripts/calendar
+for_window [app_id="gday"] floating enable, move position center
+
 ### Copilot key (sends Super+Shift+F23; F23 = keycode 201): local AI chat
 ## Launch // Local AI Chat // Copilot ##
 bindcode --no-repeat $mod+Shift+201 exec $scripts/ai-chat

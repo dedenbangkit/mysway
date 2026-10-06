@@ -1,0 +1,149 @@
+#!/usr/bin/env python3
+"""tzone-style Google Calendar view: one row per workday, one cell per hour, then today's events.
+
+Reads `gcalcli agenda --tsv`. Usage: gday [days]   (default 5 workdays, starting today)
+Super+c shows it in a floating popup (sway/scripts/calendar).
+"""
+import datetime as dt
+import subprocess
+import sys
+
+CALENDARS = ["deden@akvo.org", "Akvo Meetings", "Akvo Holidays", "Monthly Rydoo Payment"]
+INFO = {"Akvo Holidays", "Monthly Rydoo Payment"}  # listed, but don't make an hour busy
+FIRST, LAST = 8, 19  # hour cells shown: 08AM .. 07PM
+WIDTH = 9 + (LAST - FIRST + 1) * 7  # " Tue 06  " + 7 columns per " 09AM " cell and its gap
+
+
+def bg(hexcol, fg="000000"):
+    r, g, b = (int(hexcol[i:i + 2], 16) for i in (0, 2, 4))
+    fr, fg_, fb = (int(fg[i:i + 2], 16) for i in (0, 2, 4))
+    return f"\033[48;2;{r};{g};{b}m\033[38;2;{fr};{fg_};{fb}m"
+
+
+def fg(hexcol):
+    r, g, b = (int(hexcol[i:i + 2], 16) for i in (0, 2, 4))
+    return f"\033[38;2;{r};{g};{b}m"
+
+
+RESET, BOLD = "\033[0m", "\033[1m"
+FREE = bg("3a3f4b", "c0c5ce")
+BUSY = bg("3584e4", "ffffff")
+NOW = bg("8ae68a")
+PAST_FREE = bg("2b2f38", "6b7180")
+PAST_BUSY = bg("1f4f8a", "9fb4cf")
+TODAY = fg("c92c2c") + BOLD
+DIM, LABEL, ACCENT, GOLD = fg("6b7180"), fg("c0c5ce"), fg("3584e4"), fg("d1c182")
+
+
+def workdays(start, n):
+    days, d = [], start
+    while len(days) < n:
+        if d.weekday() < 5:
+            days.append(d)
+        d += dt.timedelta(days=1)
+    return days
+
+
+def fetch(start, end):
+    cmd = ["gcalcli"]
+    for c in CALENDARS:
+        cmd += ["--calendar", c]
+    cmd += ["agenda", "--tsv", "--nodeclined", "--details", "calendar",
+            start.isoformat(), end.isoformat()]
+    out = subprocess.run(cmd, capture_output=True, text=True, check=True).stdout
+    events = []
+    for line in out.splitlines()[1:]:
+        sd, st, ed, et, title, cal = (line.split("\t") + [""] * 6)[:6]
+        if st:
+            s = dt.datetime.fromisoformat(f"{sd} {st}")
+            e = dt.datetime.fromisoformat(f"{ed} {et}")
+            events.append(dict(title=title, cal=cal, start=s, end=e, allday=False))
+        else:  # all-day: end date is exclusive
+            events.append(dict(title=title, cal=cal, start=dt.date.fromisoformat(sd),
+                               end=dt.date.fromisoformat(ed), allday=True))
+    return events
+
+
+def hm(t):
+    return t.strftime("%H:%M")
+
+
+def until(delta):
+    m = int(delta.total_seconds() // 60)
+    return f"{m // 60}h {m % 60:02d}m" if m >= 60 else f"{m}m"
+
+
+def fit(text, n):
+    return text if len(text) <= n else text[:n - 1] + "…"
+
+
+def main():
+    n = int(sys.argv[1]) if len(sys.argv) > 1 else 5
+    now = dt.datetime.now().replace(second=0, microsecond=0)
+    today = now.date()
+    days = workdays(today, n)
+    events = fetch(today, days[-1] + dt.timedelta(days=1))
+    timed = [e for e in events if not e["allday"]]
+    busy = [e for e in timed if e["cal"] not in INFO]
+    out = [""]
+
+    # day rows
+    for d in days:
+        label = d.strftime("%a %d")
+        row = " " + (TODAY if d == today else LABEL) + label + RESET + "  "
+        for h in range(FIRST, LAST + 1):
+            cell_start = dt.datetime.combine(d, dt.time(h))
+            cell_end = cell_start + dt.timedelta(hours=1)
+            is_busy = any(e["start"] < cell_end and e["end"] > cell_start for e in busy)
+            text = " " + cell_start.strftime("%I%p") + " "
+            if cell_start <= now < cell_end:
+                style = NOW
+            elif cell_end <= now:
+                style = PAST_BUSY if is_busy else PAST_FREE
+            else:
+                style = BUSY if is_busy else FREE
+            row += style + text + RESET + " "
+        out += [row.rstrip(), ""]
+
+    # all-day items today (holidays are other people's days off)
+    allday = [e for e in events if e["allday"] and e["start"] <= today < e["end"]]
+    off = sorted({e["title"] for e in allday if e["cal"] == "Akvo Holidays"})
+    notes = [e["title"] for e in allday if e["cal"] != "Akvo Holidays"]
+    if notes:
+        out.append(GOLD + fit("  ★ " + " · ".join(notes), WIDTH) + RESET)
+    if off:
+        out.append(DIM + fit("  Off: " + ", ".join(off), WIDTH) + RESET)
+    if notes or off:
+        out.append("")
+
+    # today's events, or the next day that has some
+    upcoming = sorted((e for e in busy if e["end"] > now), key=lambda e: e["start"])
+    nxt = next((e for e in upcoming if e["start"] > now), None)
+    show_day = today
+    if not any(e["start"].date() == today for e in upcoming) and upcoming:
+        show_day = upcoming[0]["start"].date()
+    day_events = sorted((e for e in busy if e["start"].date() == show_day), key=lambda e: e["start"])
+    if show_day != today:
+        out.append(LABEL + "  " + show_day.strftime("%A %d %b") + RESET)
+    if not day_events:
+        out.append(DIM + "  Nothing scheduled" + RESET)
+    for e in day_events:
+        span = f"  {hm(e['start'])}–{hm(e['end'])}  "
+        title = fit(e["title"], WIDTH - len(span) - 14)
+        if e["end"] <= now:
+            out.append(DIM + span + title + RESET)
+        elif e["start"] <= now:
+            out.append(NOW + span.rstrip() + " " + RESET + " " + BOLD + title + RESET + DIM + "  now" + RESET)
+        else:
+            tag = f"  in {until(e['start'] - now)}" if e is nxt else ""
+            out.append(ACCENT + span + RESET + title + GOLD + tag + RESET)
+    out.append("")
+    print("\n".join(out))
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except subprocess.CalledProcessError as err:
+        print(f"\n  gcalcli failed: {err.stderr.strip().splitlines()[-1] if err.stderr else err}\n")
+        sys.exit(1)
