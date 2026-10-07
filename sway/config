@@ -309,6 +309,12 @@ for_window [app_id="tzone"] floating enable, move position center
 bindsym $mod+c exec $scripts/calendar
 for_window [app_id="gday"] floating enable, move position center
 
+## Launch // Notes: Today's Journal (toggle) // <> b ##
+bindsym $mod+b exec $scripts/notes
+## Launch // Notes: Find or New // <><Shift> b ##
+bindsym $mod+Shift+b exec $scripts/notes find
+for_window [app_id="emacs" title="^orgnotes$"] floating enable, resize set 1000 680, move position center
+
 ### Copilot key (sends Super+Shift+F23; F23 = keycode 201): local AI chat
 ## Launch // Local AI Chat // Copilot ##
 bindcode --no-repeat $mod+Shift+201 exec $scripts/ai-chat

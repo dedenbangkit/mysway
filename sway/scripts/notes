@@ -1,0 +1,33 @@
+#!/bin/bash
+# Notes popup: floating Emacs (daemon) on the org notes in ~/Orgs (git: dedenbangkit/orgs).
+#   notes        Super+b: today's entry in journal.org; again closes it
+#   notes find   Super+Shift+b: pick a note with fuzzel (newest first); a new name starts a new note
+#   notes sync   commit + push ~/Orgs (Emacs runs this when the popup closes)
+dir=~/Orgs
+el="$(dirname "$(readlink -f "$0")")/notes.el"
+
+open() { swaymsg -t get_tree | jq -e '.. | select(.name? == "orgnotes")' >/dev/null; }
+
+case "$1" in
+  sync)
+    cd "$dir" || exit 1
+    git add -A
+    git diff --cached --quiet || git commit -qm "notes: $(date '+%F %H:%M')"
+    git pull -q --rebase && git push -q \
+      || notify-send -u critical 'Notes not pushed' "Run git status in $dir"
+    exit ;;
+  find)
+    open && emacsclient -e '(mysway-notes-close)' >/dev/null
+    sel=$(cd "$dir" && ls -t -- *.org 2>/dev/null | sed 's/\.org$//' \
+      | fuzzel --dmenu --lines=12 --width=40 --prompt=$'  ' \
+          --placeholder='Note… (new name = new note)' --match-mode=fuzzy) || exit 0
+    sel=${sel//\//-}; sel=${sel//\"/}
+    [ -n "$sel" ] || exit 0
+    form="(mysway-notes-open-file \"$dir/$sel.org\")" ;;
+  *)
+    if open; then emacsclient -e '(mysway-notes-close)' >/dev/null; exit; fi
+    form='(mysway-notes-open)' ;;
+esac
+
+emacsclient -e "(load \"$el\" nil t)" >/dev/null || exit 1
+emacsclient -n -c -F '((name . "orgnotes"))' -e "$form" >/dev/null

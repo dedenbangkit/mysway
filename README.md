@@ -5,7 +5,7 @@ are symlinked into `~/.config`.
 
 | Folder | What |
 |---|---|
-| `sway/` | Sway config and scripts (screenshot, record, menus) |
+| `sway/` | Sway config and scripts (screenshot, record, menus, notes popup: Emacs + org in `~/Orgs`, git `dedenbangkit/orgs`) |
 | `waybar/` | Bar |
 | `foot/`, `fuzzel/` | Terminal, launcher |
 | `mpd/` | Music daemon |
