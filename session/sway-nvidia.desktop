@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=Sway (NVIDIA)
-Comment=Sway with --unsupported-gpu (HDMI is on the RTX 5060, open NVIDIA driver loaded)
-Exec=sway --unsupported-gpu
+Comment=Sway with --unsupported-gpu and ~/.paths (HDMI is on the RTX 5060, open NVIDIA driver loaded)
+Exec=/usr/local/bin/sway-session
 Type=Application
 DesktopNames=sway;wlroots

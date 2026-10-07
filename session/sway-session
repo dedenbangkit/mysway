@@ -1,0 +1,6 @@
+#!/usr/bin/zsh
+# Login wrapper for "Sway (NVIDIA)". GDM execs the session command directly, with no login shell,
+# so sway (and everything it launches) would miss ~/.paths: ~/.local/bin, ~/Scripts, Go, npm, ...
+# ~/.paths is zsh syntax, hence zsh. If it fails, sway still starts with the default PATH.
+[ -f "$HOME/.paths" ] && source "$HOME/.paths"
+exec sway --unsupported-gpu "$@"

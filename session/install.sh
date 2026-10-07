@@ -5,6 +5,7 @@
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 sessions=/usr/share/wayland-sessions
+sudo install -m 755 "$here/sway-session" /usr/local/bin/sway-session  # loads ~/.paths, then runs sway
 sudo install -m 644 "$here/sway-nvidia.desktop" "$sessions/sway-nvidia.desktop"
 
 # Hide the plain "Sway" entry (it can't start with the NVIDIA driver loaded). dpkg-divert keeps
