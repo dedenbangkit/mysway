@@ -84,8 +84,10 @@ bindsym $mod+d exec $scripts/dnd
 bindsym $mod+x exec emacsclient -c -a ''
 ## Launch // Keybinding Viewer // <><Shift> ? ##
 bindsym $mod+Shift+slash exec $scripts/keybindings
-## Navigate // Window by Name // <><Ctrl> Space ##
-bindsym $mod+Ctrl+space exec $scripts/window-switcher
+## Launch // Keybinding Viewer // <> / ##
+bindsym $mod+slash exec $scripts/keybindings
+## Navigate // Window by Name (toggle) // <> w ##
+bindsym $mod+w exec $scripts/window-switcher
 ## Launch // File Browser // <> n ##
 bindsym $mod+n exec nautilus
 ## Launch // Notification Viewer // <><Shift> n ##
@@ -94,8 +96,6 @@ bindsym $mod+Shift+n exec makoctl restore
 ### Settings (gnome-control-center needs to think it is on GNOME)
 ## Modify // Settings // <> s ##
 bindsym $mod+s exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center
-## Modify // Wifi Settings // <> w ##
-bindsym $mod+w exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center wifi
 ## Modify // Bluetooth Settings // <> b ##
 bindsym $mod+b exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center bluetooth
 ## Modify // Toggle Bar // <> i ##

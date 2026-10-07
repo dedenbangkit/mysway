@@ -1,5 +1,6 @@
 #!/bin/sh
-# Pick an open window by name with fuzzel and focus it.
+# Pick an open window by name with fuzzel and focus it (Super+w; again closes the menu).
+pkill -x fuzzel && exit 0
 sel=$(swaymsg -t get_tree | jq -r '
   recurse(.nodes[]?, .floating_nodes[]?)
   | select((.type == "con" or .type == "floating_con") and .pid != null)
