@@ -1,29 +1,54 @@
 #!/bin/bash
 # Calendar popup (Super+c): floating foot running gday, sized to its output.
-# Press any key (or Super+c again) to close; it refreshes every minute while open.
+# Press any key (or Super+c again) to close; it redraws every minute while open.
+# Events come from gday's cache (fetched once a day); Super+Shift+c (calendar
+# --refresh) fetches from Google again and reopens the popup.
 export PATH="$HOME/.local/bin:$PATH"  # gcalcli is a pipx app
 here="$(dirname "$(readlink -f "$0")")"
 cache="${XDG_RUNTIME_DIR:-/tmp}/gday.txt"
 
 if [ "$1" = show ]; then
   printf '\e[?25l'  # hide the cursor
+  # Centre the output in the window's real height so top and bottom padding
+  # match: foot can round a row short (fractional scaling) and Sway may still
+  # resize it after the first draw, so redraw on every resize too.
+  draw() {
+    # drop blank lines (ignoring colour codes) at both ends, add a left margin
+    out=$(awk '{ l[NR] = $0; t = $0; gsub(/\033\[[0-9;]*m|[[:space:]]/, "", t)
+                 if (t != "") { if (!a) a = NR; b = NR } }
+               END { for (i = a; i <= b; i++) print " " l[i] }' "$cache")
+    pad=$(( ($(tput lines) - 1 - $(printf '%s\n' "$out" | wc -l)) / 2 ))
+    printf '\e[H\e[2J\e[3J'
+    "$here/popup-header" $'\U000F00ED' 'CALENDAR'
+    [ "$pad" -gt 0 ] && printf '\n%.0s' $(seq "$pad")
+    printf '%s' "$out"
+  }
+  trap 'resized=1' WINCH
+  # let foot/Sway settle on a size before the first draw
+  last=; for _ in $(seq 20); do
+    now="$(tput lines)x$(tput cols)"; [ "$now" = "$last" ] && break
+    last=$now; sleep 0.1
+  done
+  draw
   while :; do
-    printf '\e[H\e[2J'
-    cat "$cache"
+    resized=
     read -rsn1 -t 60 && exit 0
-    "$here/gday" > "$cache.new" 2>&1 && mv "$cache.new" "$cache"
+    [ -n "$resized" ] && { draw; continue; }  # read was cut short by a resize
+    "$here/gday" > "$cache.new" 2>&1 && mv "$cache.new" "$cache"  # cached events, fresh times
+    draw
   done
 fi
 
 if swaymsg -t get_tree | grep -q '"app_id": "gday"'; then
   swaymsg -q '[app_id="gday"] kill'
-  exit 0
+  [ "$1" = --refresh ] || exit 0
 fi
 
 # draw once up front so the window can be sized to the output
-"$here/gday" > "$cache" 2>&1
+"$here/gday" ${1:+"$1"} > "$cache" 2>&1
 plain=$(sed 's/\x1b\[[0-9;]*m//g' "$cache")
-cols=$(( $(printf '%s\n' "$plain" | awk '{ if (length > m) m = length } END { print m }') + 1 ))
-rows=$(( $(wc -l < "$cache") + 1 ))
+cols=$(( $(printf '%s\n' "$plain" | awk '{ if (length > m) m = length } END { print m }') + 2 ))  # +1 margin each side
+rows=$(( $(wc -l < "$cache") + 2 ))  # + header bar
 
-exec foot --app-id=gday --window-size-chars="${cols}x${rows}" "$0" show
+exec foot --app-id=gday -o "font=JetBrainsMono Nerd Font:size=12" -o colors.background=000000 \
+  --window-size-chars="${cols}x${rows}" "$0" show

@@ -1,0 +1,9 @@
+#!/bin/bash
+# popup-header ICON NAME: full-width #3584E4 title bar for the foot popups
+# (calendar, tzone), with the date and time on the right. Sway draws no title
+# bars, so this stands in for one on the first row of the window.
+export LC_ALL=C.UTF-8  # count characters, not bytes, for the right edge
+cols=$(tput cols)
+right="$(date '+%a %d %b · %H:%M') "
+printf '\e[48;2;53;132;228m\e[38;2;255;255;255m\e[1m %s  %s\e[K\e[%dG%s\e[0m\n' \
+  "$1" "$2" $(( cols - ${#right} + 1 )) "$right"

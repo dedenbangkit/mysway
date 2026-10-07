@@ -3,14 +3,22 @@
 # Press any key (or Super+z again) to close; it redraws every minute while open.
 HOURS=12  # hour cells per row, keep it even
 export PATH="$HOME/.local/go/bin:$PATH"  # sway's PATH has no Go bin dir
+here="$(dirname "$(readlink -f "$0")")"
 
 if [ "$1" = show ]; then
   printf '\e[?25l'  # hide the cursor
   # tzone reads the width once, so wait for foot to reach its final size first
   for _ in $(seq 20); do [ "$(tput cols)" = "$2" ] && break; sleep 0.05; done
   while :; do
+    # foot can round the window a row short of what was asked (fractional
+    # scaling), so centre the output in the real height instead of relying
+    # on tzone's own leading blank line. script keeps it on a pty for colours.
+    out=$(script -qc tzone /dev/null | tr -d '\r' | sed '/[^[:space:]]/,$!d')
+    pad=$(( ($(tput lines) - 1 - $(printf '%s\n' "$out" | wc -l)) / 2 ))
     printf '\e[H\e[2J'
-    tzone
+    "$here/popup-header" $'\U000F01E7' 'TIME ZONES'
+    [ "$pad" -gt 0 ] && printf '\n%.0s' $(seq "$pad")
+    printf '%s' "$out"
     read -rsn1 -t 60 && exit 0
   done
 fi
@@ -24,6 +32,7 @@ fi
 zones=$(grep -c 'tz:' ~/.tzone)
 name=$(sed -n 's/^ *name: *"\{0,1\}\([^"]*\)"\{0,1\} *$/\1/p' ~/.tzone | awk '{ if (length > m) m = length } END { print m }')
 cols=$(( name + 2 + HOURS * 7 ))
-rows=$(( zones * 2 + 2 ))  # blank line on top, cursor line at the bottom
+rows=$(( zones * 2 + 3 ))  # header bar + a blank line above and below the zones
 
-exec foot --app-id=tzone --window-size-chars="${cols}x${rows}" "$0" show "$cols"
+exec foot --app-id=tzone -o "font=JetBrainsMono Nerd Font:size=12" -o colors.background=000000 \
+  --window-size-chars="${cols}x${rows}" "$0" show "$cols"

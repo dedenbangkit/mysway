@@ -307,6 +307,8 @@ for_window [app_id="tzone"] floating enable, move position center
 
 ## Launch // Calendar // <> c ##
 bindsym $mod+c exec $scripts/calendar
+## Launch // Calendar: Refetch from Google // <><Shift> c ##
+bindsym $mod+Shift+c exec $scripts/calendar --refresh
 for_window [app_id="gday"] floating enable, move position center
 
 ## Launch // Notes: Today's Journal (toggle) // <> b ##
