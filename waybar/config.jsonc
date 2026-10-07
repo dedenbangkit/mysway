@@ -23,6 +23,7 @@
       "clock",
       "battery",
       "pulseaudio",
+      "custom/dnd",
       "tray"
     ],
     "sway/workspaces": {
@@ -108,6 +109,13 @@
         ""
       ],
       "tooltip-format": "{timeTo}"
+    },
+    "custom/dnd": {
+      "exec": "~/.config/sway/scripts/dnd status",
+      "return-type": "json",
+      "interval": "once",
+      "signal": 11,
+      "on-click": "~/.config/sway/scripts/dnd"
     },
     "pulseaudio": {
       "format": "<span color='#d1c182'>{icon}</span> {volume}%",

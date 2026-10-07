@@ -1,0 +1,6 @@
+# Notifications (mako). Only the do-not-disturb mode is set; everything else is mako's default.
+
+# Do not disturb (Super+d / waybar bell, sway/scripts/dnd): hide popups, keep them queued.
+# Turning it off shows whatever arrived meanwhile; Super+Shift+n restores dismissed ones.
+[mode=do-not-disturb]
+invisible=1

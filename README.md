@@ -14,6 +14,7 @@ are symlinked into `~/.config`.
 | `bottom/` | System monitor `btm`: basic mode (text bars, no graphs), vim keys, black/square/blue; `c`/`m` sort by CPU/memory |
 | `ollama/` | Local LLM as a **user** service, not started at boot: the Copilot key and `summarize` start it, `stop-ollama` stops it. Models in `~/.ollama/models` (on /home), flash attention, q8 KV cache, 8K context, unload after 5 min (`install.sh` links it) |
 | `oterm/` | Terminal chat for Ollama on the Copilot key (`sway/scripts/ai-chat`, floating scratchpad window); `ansi-dark` theme follows foot colours. Only `config.json` is symlinked into `~/.local/share/oterm/` (chats live there too) |
+| `mako/` | Notifications: only a `do-not-disturb` mode (popups held until it's turned off), toggled by Super+D or the bell after the volume on the top bar |
 | `copyq/` | Clipboard manager settings: no tray, main window hidden on start, black/square/blue theme (`[Theme]` section). Only `copyq.conf` is symlinked into `~/.config/copyq/` (the rest of that folder is history and keys) |
 | `grub/` | GRUB theme + kernel params (`install.sh`) |
 | `gdm/` | Login screen: black background, smaller logo, black/square/blue fields and buttons (`install.sh`) |

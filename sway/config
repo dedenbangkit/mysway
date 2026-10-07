@@ -78,8 +78,8 @@ bindsym $mod+Return exec ~/Scripts/nt
 bindsym $mod+Shift+Return exec firefox
 ## Launch // Application // <> Space ##
 bindsym $mod+space exec $menu
-## Launch // Application (drun) // <> d ##
-bindsym $mod+d exec $menu
+## Launch // Do Not Disturb (toggle) // <> d ##
+bindsym $mod+d exec $scripts/dnd
 ## Launch // Open Emacs // <> x ##
 bindsym $mod+x exec emacsclient -c -a ''
 ## Launch // Keybinding Viewer // <><Shift> ? ##

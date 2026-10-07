@@ -42,6 +42,9 @@ window#waybar.empty #window { padding: 0; }
 #custom-meeting.now  { color: #8ae68a; }
 #battery.warning:not(.charging)  { color: #FF7800; }
 #battery.critical:not(.charging) { color: #E01B24; }
+#custom-dnd { color: #d1c182; padding: 0 12px 0 6px; }  /* bell glyph overflows right */
+#custom-dnd.on { color: #c92c2c; }
+#custom-dnd:hover { background: #2d3743; }
 
 /* Bottom bar (old conf.d.bottom): focused window (quote off for now) + clipboard, record and screenshot buttons */
 window#waybar.bottom { background: rgba(0, 0, 0, 0.5); }

@@ -1,0 +1,18 @@
+#!/bin/sh
+# Do not disturb for mako (Super+d, waybar custom/dnd via signal 11).
+#   dnd          toggle
+#   dnd status   JSON for the waybar module
+if [ "$1" = status ]; then
+  if makoctl mode | grep -qx do-not-disturb; then
+    printf '{"text":"\\uf1f6","class":"on","tooltip":"Do not disturb: on (notifications held)\\nClick: turn off"}\n'
+  else
+    printf '{"text":"\\uf0f3","class":"off","tooltip":"Do not disturb: off\\nClick: hold notifications"}\n'
+  fi
+  exit 0
+fi
+if makoctl mode | grep -qx do-not-disturb; then
+  makoctl mode -r do-not-disturb >/dev/null
+else
+  makoctl mode -a do-not-disturb >/dev/null
+fi
+pkill -RTMIN+11 -x waybar
