@@ -96,8 +96,6 @@ bindsym $mod+Shift+n exec makoctl restore
 ### Settings (gnome-control-center needs to think it is on GNOME)
 ## Modify // Settings // <> s ##
 bindsym $mod+s exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center
-## Modify // Bluetooth Settings // <> b ##
-bindsym $mod+b exec env XDG_CURRENT_DESKTOP=GNOME gnome-control-center bluetooth
 ## Modify // Toggle Bar // <> i ##
 bindsym $mod+i exec pkill -SIGUSR1 -x waybar
 
