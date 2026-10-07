@@ -106,16 +106,12 @@ bindsym $mod+Shift+q kill
 bindsym $mod+Alt+q exec kill -9 $(swaymsg -t get_tree | jq '.. | select(.focused? == true) | .pid')
 ## Session // Reload Sway Config // <><Shift> r ##
 bindsym $mod+Shift+r reload
-## Session // Reload Sway Config // <><Ctrl> r ##
-bindsym $mod+Ctrl+r reload
 ## Session // Lock Screen // <> Escape ##
 bindsym $mod+Escape exec $lock
 ## Session // Logout Menu // <><Shift> e ##
 bindsym $mod+Shift+e exec ~/.config/sway/scripts/power-menu
 ## Session // Sleep // <><Shift> s ##
 bindsym $mod+Shift+s exec systemctl suspend
-## Session // Reboot // <><Shift> b ##
-bindsym $mod+Shift+b exec swaynag -t warning -m 'Reboot?' -B 'Reboot' 'systemctl reboot'
 ## Session // Power Menu // <><Shift> p ##
 bindsym $mod+Shift+p exec ~/.config/sway/scripts/power-menu
 
@@ -226,16 +222,8 @@ bindsym $mod+Alt+Ctrl+9 move container to workspace number 19; workspace number 
 
 ## Navigate // Next Workspace // <> Tab ##
 bindsym $mod+Tab workspace next
-## Navigate // Previous Workspace // <><Shift> Tab ##
-bindsym $mod+Shift+Tab workspace prev
-## Navigate // Next Workspace // <><Alt> → ##
-bindsym $mod+Alt+Right workspace next
-## Navigate // Previous Workspace // <><Alt> ← ##
-bindsym $mod+Alt+Left workspace prev
 ## Navigate // Next Workspace on Output // <><Ctrl> Tab ##
 bindsym $mod+Ctrl+Tab workspace next_on_output
-## Navigate // Previous Workspace on Output // <><Ctrl><Shift> Tab ##
-bindsym $mod+Ctrl+Shift+Tab workspace prev_on_output
 ## Navigate // Next Workspace on Output // <><Ctrl> l ##
 bindsym $mod+Ctrl+l workspace next_on_output
 ## Navigate // Previous Workspace on Output // <><Ctrl> h ##
