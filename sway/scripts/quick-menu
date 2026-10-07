@@ -1,5 +1,5 @@
 #!/bin/bash
-# Quick menu (ROG key): fuzzel launcher for the everyday tools in this setup.
+# Quick menu (ROG key, Super+q): fuzzel launcher for the everyday tools in this setup.
 scripts=~/.config/sway/scripts
 # floating terminal that stays open after the command finishes
 float() { foot --app-id=quick-float --hold "$@"; }
@@ -10,6 +10,16 @@ else
   record=$'  Record screen'
 fi
 
+if makoctl mode | grep -qx do-not-disturb; then
+  dnd=$'  Notifications on'
+else
+  dnd=$'  Do not disturb'
+fi
+
+# only offer "Stop Ollama" while it runs (it holds GPU memory)
+ollama=()
+systemctl --user is-active -q ollama && ollama=($'  Stop Ollama')
+
 # only offer "Lock vault" while the LUKS vault is unlocked
 vault=()
 lsblk -nro TYPE /dev/disk/by-partlabel/vault 2>/dev/null | grep -qx crypt &&
@@ -18,24 +28,34 @@ lsblk -nro TYPE /dev/disk/by-partlabel/vault 2>/dev/null | grep -qx crypt &&
 sel=$(printf '%s\n' \
     $'  Screenshot' \
     "$record" \
+    "$dnd" \
+    $'  Calendar' \
+    $'  Time zones' \
+    $'  Open repo' \
+    $'  AI chat' \
     $'  Play a song' \
     $'  Play / pause music' \
     $'  Clipboard history' \
-    $'  Time zones' \
     $'  Check upgrades' \
+    "${ollama[@]}" \
     "${vault[@]}" \
     $'  Power…' \
-  | fuzzel --dmenu --lines=$((8 + ${#vault[@]})) --width=26 --prompt=$'  ' \
+  | fuzzel --dmenu --lines=$((12 + ${#ollama[@]} + ${#vault[@]})) --width=26 --prompt=$'  ' \
       --placeholder='Quick…' --match-mode=fuzzy) || exit 0
 
 case "${sel#*  }" in
   'Screenshot')             sleep 0.2; $scripts/screenshot ;;
   'Record screen'|'Stop recording') $scripts/record ;;
+  'Do not disturb'|'Notifications on') $scripts/dnd ;;
+  'Calendar')               $scripts/calendar ;;
+  'Time zones')             $scripts/tzone ;;
+  'Open repo')              $scripts/repos ;;
+  'AI chat')                $scripts/ai-chat ;;
   'Play a song')            $scripts/music ;;
   'Play / pause music')     mpc -q toggle ;;
   'Clipboard history')      copyq toggle ;;
-  'Time zones')             float ~/.local/go/bin/tzone ;;
   'Check upgrades')         float ~/Scripts/upgrades ;;
+  'Stop Ollama')            float ~/Scripts/stop-ollama ;;
   'Lock vault')
     if $scripts/vault-lock; then notify-send -i changes-prevent 'Vault locked'
     else notify-send -u critical 'Vault not locked' 'Something is still using it (a terminal or app open in it?)'; fi ;;
