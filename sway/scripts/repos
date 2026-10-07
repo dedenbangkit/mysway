@@ -1,0 +1,9 @@
+#!/bin/bash
+# Repo picker (Super+a): fuzzel over every folder in ~/Repos/*/, most recently touched
+# first; opens a terminal in the chosen one.
+root=~/Repos
+sel=$(find "$root" -mindepth 2 -maxdepth 2 -type d -not -name '.*' -printf '%T@ %P\n' \
+  | sort -rn | cut -d' ' -f2- \
+  | fuzzel --dmenu --lines=12 --width=48 --prompt=$'  ' \
+      --placeholder='Repo…' --match-mode=fuzzy) || exit 0
+[ -d "$root/$sel" ] && exec foot --working-directory="$root/$sel"

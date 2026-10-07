@@ -134,10 +134,8 @@ bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
-## Navigate // Relative Parent // <> a ##
-bindsym $mod+a focus parent
-## Navigate // Relative Child // <><Shift> a ##
-bindsym $mod+Shift+a focus child
+## Launch // Repo Terminal // <> a ##
+bindsym $mod+a exec $scripts/repos
 
 ## Modify // Window Position // <><Shift> k j h l ##
 bindsym $mod+Shift+$left move left
