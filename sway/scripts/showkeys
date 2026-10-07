@@ -1,0 +1,11 @@
+#!/bin/sh
+# Keystroke overlay in the top-right corner (Super+Ctrl+k toggles).
+# Uses the patched fork in ~/Repos/forks/wshowkeys (-l caps the line at the
+# last N keys). It reads /dev/input, so the installed binary needs setuid root.
+if pkill -x wshowkeys; then
+  exit 0
+fi
+exec wshowkeys -a top -a right -m 40 \
+  -F 'JetBrainsMono Nerd Font 13' \
+  -b '#000000cc' -f '#ffffff' -s '#3584E4' \
+  -t 1 -l 15

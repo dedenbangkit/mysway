@@ -80,6 +80,8 @@ bindsym $mod+Shift+Return exec firefox
 bindsym $mod+space exec $menu
 ## Launch // Do Not Disturb (toggle) // <> d ##
 bindsym $mod+d exec $scripts/dnd
+## Launch // Keystroke Overlay (toggle) // <><Ctrl> k ##
+bindsym $mod+Ctrl+k exec $scripts/showkeys
 ## Launch // Open Emacs // <> x ##
 bindsym $mod+x exec emacsclient -c -a ''
 ## Launch // Keybinding Viewer // <><Shift> ? ##
