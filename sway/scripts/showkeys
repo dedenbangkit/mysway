@@ -1,7 +1,11 @@
 #!/bin/sh
 # Keystroke overlay in the top-right corner (Super+Ctrl+k toggles).
-# Uses the patched fork in ~/Repos/forks/wshowkeys (-l caps the line at the
-# last N keys). It reads /dev/input, so the installed binary needs setuid root.
+# Uses the patched fork github.com/dedenbangkit/wshowkeys (-l caps the line
+# at the last N keys). Install it with:
+#   git clone git@github.com:dedenbangkit/wshowkeys ~/Repos/forks/wshowkeys
+#   cd ~/Repos/forks/wshowkeys && meson setup build && ninja -C build
+#   sudo ninja -C build install && sudo chmod u+s /usr/local/bin/wshowkeys
+# It reads /dev/input, so the binary needs setuid root (reinstalling drops it).
 if pkill -x wshowkeys; then
   exit 0
 fi
