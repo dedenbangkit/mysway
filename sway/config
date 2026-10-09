@@ -16,7 +16,7 @@ set $lock swaylock -f
 font pango:JetBrainsMono Nerd Font 10
 default_border pixel 3
 default_floating_border pixel 1
-gaps inner 0
+gaps inner 3
 gaps outer 0
 hide_edge_borders smart
 
@@ -253,8 +253,8 @@ bindsym $mod+Shift+t focus mode_toggle
 
 ### Gaps
 ## Resize // Window Gaps // <> + - ##
-bindsym $mod+equal gaps inner current plus 6
-bindsym $mod+minus gaps inner current minus 6
+bindsym $mod+equal gaps inner current plus 3
+bindsym $mod+minus gaps inner current minus 3
 ## Resize // Big Window Gaps // <><Shift> + - ##
 bindsym $mod+Shift+equal gaps inner current plus 12
 bindsym $mod+Shift+minus gaps inner current minus 12
