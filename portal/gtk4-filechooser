@@ -1,0 +1,160 @@
+#!/usr/bin/env python3
+# FileChooser portal backend that shows the classic GTK4 file chooser.
+# xdg-desktop-portal-gtk is GTK3 (its name autocomplete popup closes at once under Sway)
+# and xdg-desktop-portal-gnome now hands off to Nautilus (no name autocomplete at all).
+# Registered as the "gtk4fc" portal; sway-portals.conf routes FileChooser here.
+import os
+import warnings
+
+# GTK would ask xdg-desktop-portal for settings while the portal waits for us to start: deadlock
+os.environ["GDK_DEBUG"] = "no-portals"
+warnings.filterwarnings("ignore", category=DeprecationWarning)  # GtkFileChooserDialog is deprecated
+
+import dbus  # noqa: E402
+import dbus.service  # noqa: E402
+import gi  # noqa: E402
+from dbus.mainloop.glib import DBusGMainLoop  # noqa: E402
+
+gi.require_version("Gtk", "4.0")
+from gi.repository import Gio, GLib, Gtk  # noqa: E402
+
+BUS_NAME = "org.freedesktop.impl.portal.desktop.gtk4fc"
+IFACE = "org.freedesktop.impl.portal.FileChooser"
+REQUEST_IFACE = "org.freedesktop.impl.portal.Request"
+SUCCESS, CANCELLED = 0, 1
+
+
+def path_from_bytes(value):
+    return bytes(value).rstrip(b"\0").decode() if value else None
+
+
+def build_filter(spec):
+    name, rules = spec
+    f = Gtk.FileFilter(name=str(name))
+    for kind, pattern in rules:
+        (f.add_mime_type if kind == 1 else f.add_pattern)(str(pattern))
+    return f
+
+
+def filter_spec(f, specs):
+    for spec in specs or []:
+        if str(spec[0]) == f.get_name():
+            return spec
+    return None
+
+
+class Request(dbus.service.Object):
+    """The portal frontend calls Close on this when the app cancels the dialog."""
+
+    def __init__(self, bus, handle, dialog):
+        super().__init__(bus, handle)
+        self.dialog = dialog
+
+    @dbus.service.method(REQUEST_IFACE)
+    def Close(self):
+        self.dialog.response(Gtk.ResponseType.CANCEL)
+
+
+class FileChooser(dbus.service.Object):
+    def __init__(self, bus):
+        super().__init__(bus, "/org/freedesktop/portal/desktop")
+        self.bus = bus
+
+    def run(self, handle, title, action, options, ok, finish):
+        dialog = Gtk.FileChooserDialog(title=str(title), action=action, modal=True)
+        dialog.add_button("_Cancel", Gtk.ResponseType.CANCEL)
+        default = "_Save" if action == Gtk.FileChooserAction.SAVE else "_Open"
+        dialog.add_button(str(options.get("accept_label", default)), Gtk.ResponseType.ACCEPT)
+        dialog.set_default_response(Gtk.ResponseType.ACCEPT)
+        dialog.set_default_size(900, 600)
+        dialog.set_select_multiple(bool(options.get("multiple", False)))
+
+        specs = options.get("filters", [])
+        filters = [build_filter(s) for s in specs]
+        for f in filters:
+            dialog.add_filter(f)
+        current = options.get("current_filter")
+        if current is not None:
+            match = next((f for f in filters if f.get_name() == str(current[0])), None)
+            if match is None:
+                match = build_filter(current)
+                dialog.add_filter(match)
+            dialog.set_filter(match)
+
+        choices = options.get("choices", [])
+        for cid, label, opts, selected in choices:
+            # No options means a checkbox, whose value is "true"/"false"
+            ids = [str(o[0]) for o in opts] or None
+            labels = [str(o[1]) for o in opts] or None
+            dialog.add_choice(str(cid), str(label), ids, labels)
+            dialog.set_choice(str(cid), str(selected) or "false")
+
+        folder = path_from_bytes(options.get("current_folder"))
+        current_file = path_from_bytes(options.get("current_file"))
+        if current_file:
+            dialog.set_file(Gio.File.new_for_path(current_file))
+        elif folder:
+            dialog.set_current_folder(Gio.File.new_for_path(folder))
+        if "current_name" in options:
+            dialog.set_current_name(str(options["current_name"]))
+
+        request = Request(self.bus, handle, dialog)
+
+        def on_response(d, response):
+            results = {}
+            if response == Gtk.ResponseType.ACCEPT:
+                code = SUCCESS
+                results["uris"] = dbus.Array(finish(d), signature="s")
+                spec = filter_spec(d.get_filter(), specs) if d.get_filter() else None
+                if spec is not None:
+                    results["current_filter"] = spec
+                if choices:
+                    results["choices"] = dbus.Array(
+                        [(c[0], d.get_choice(c[0]) or "") for c in choices], signature="(ss)")
+            else:
+                code = CANCELLED
+            request.remove_from_connection()
+            d.destroy()
+            ok(dbus.UInt32(code), dbus.Dictionary(results, signature="sv"))
+
+        dialog.connect("response", on_response)
+        dialog.present()
+
+    @dbus.service.method(IFACE, in_signature="osssa{sv}", out_signature="ua{sv}",
+                         async_callbacks=("ok", "err"))
+    def OpenFile(self, handle, app_id, parent, title, options, ok, err):
+        directory = bool(options.get("directory", False))
+        action = Gtk.FileChooserAction.SELECT_FOLDER if directory else Gtk.FileChooserAction.OPEN
+        self.run(handle, title, action, options, ok,
+                 lambda d: [f.get_uri() for f in d.get_files()])
+
+    @dbus.service.method(IFACE, in_signature="osssa{sv}", out_signature="ua{sv}",
+                         async_callbacks=("ok", "err"))
+    def SaveFile(self, handle, app_id, parent, title, options, ok, err):
+        self.run(handle, title, Gtk.FileChooserAction.SAVE, options, ok,
+                 lambda d: [d.get_file().get_uri()])
+
+    @dbus.service.method(IFACE, in_signature="osssa{sv}", out_signature="ua{sv}",
+                         async_callbacks=("ok", "err"))
+    def SaveFiles(self, handle, app_id, parent, title, options, ok, err):
+        names = [path_from_bytes(f) for f in options.get("files", [])]
+        self.run(handle, title, Gtk.FileChooserAction.SELECT_FOLDER, options, ok,
+                 lambda d: [d.get_file().get_child(n).get_uri() for n in names])
+
+
+def main():
+    GLib.set_prgname("gtk4-filechooser")
+    Gtk.init()
+    # Without the portal GTK misses the desktop's dark preference; read it from GSettings
+    iface = Gio.Settings.new("org.gnome.desktop.interface")
+    Gtk.Settings.get_default().props.gtk_application_prefer_dark_theme = (
+        iface.get_string("color-scheme") == "prefer-dark")
+    DBusGMainLoop(set_as_default=True)
+    bus = dbus.SessionBus()
+    name = dbus.service.BusName(BUS_NAME, bus)  # noqa: F841 (keeps the name owned)
+    FileChooser(bus)
+    GLib.MainLoop().run()
+
+
+if __name__ == "__main__":
+    main()

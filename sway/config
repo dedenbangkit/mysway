@@ -68,6 +68,8 @@ exec ~/.config/sway/scripts/clip-persist
 # Uses the slack_slack.desktop override (--disable-gpu, PipeWire env for screen share)
 exec gtk-launch slack_slack
 for_window [app_id="com.github.hluk.copyq"] floating enable
+# Save/open dialogs from portal/gtk4-filechooser
+for_window [app_id="gtk4-filechooser"] floating enable, resize set 1000 640, move position center
 ## Launch // Clipboard History // <> v ##
 bindsym $mod+v exec copyq toggle
 
