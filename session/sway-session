@@ -3,4 +3,7 @@
 # so sway (and everything it launches) would miss ~/.paths: ~/.local/bin, ~/Scripts, Go, npm, ...
 # ~/.paths is zsh syntax, hence zsh. If it fails, sway still starts with the default PATH.
 [ -f "$HOME/.paths" ] && source "$HOME/.paths"
+# ~/.paths exports XDG_CONFIG_HOME=~/.config. Snaps (Slack, ...) then try to write there, AppArmor
+# denies it and they crash on start. ~/.config is the default anyway, so drop it.
+unset XDG_CONFIG_HOME
 exec sway --unsupported-gpu "$@"
