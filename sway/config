@@ -90,8 +90,10 @@ bindsym $mod+x exec emacsclient -c -a ''
 bindsym $mod+Shift+slash exec $scripts/keybindings
 ## Launch // Keybinding Viewer // <> / ##
 bindsym $mod+slash exec $scripts/keybindings
-## Navigate // Window by Name (toggle) // <> w ##
-bindsym $mod+w exec $scripts/window-switcher
+## Navigate // Window by Name (toggle) // <><Shift> w ##
+bindsym $mod+Shift+w exec $scripts/window-switcher
+## Launch // Firefox Bookmark (toggle) // <> w ##
+bindsym $mod+w exec $scripts/bookmarks
 ## Launch // File Browser // <> n ##
 bindsym $mod+n exec nautilus
 ## Launch // Notification Viewer // <><Shift> n ##

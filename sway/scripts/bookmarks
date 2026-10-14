@@ -1,0 +1,32 @@
+#!/bin/bash
+# Bookmark picker (Super+w / bar's bookmark icon; again closes the menu): fuzzel over Firefox
+# bookmarks, opens the pick in Firefox.
+pkill -x fuzzel && exit 0
+# Firefox locks places.sqlite while running, so a copy (with its WAL) is read instead.
+db=$(ls -t ~/snap/firefox/common/.mozilla/firefox/*/places.sqlite ~/.mozilla/firefox/*/places.sqlite 2>/dev/null | head -1)
+[ -n "$db" ] || { notify-send 'Bookmarks' 'No Firefox profile found'; exit 1; }
+
+tmp=$(mktemp -d); trap 'rm -rf "$tmp"' EXIT
+cp "$db" "$tmp/places.sqlite"; cp "$db-wal" "$tmp/places.sqlite-wal" 2>/dev/null
+
+# "Title  ·  folder<TAB>url", newest first
+list() {
+  python3 -I - "$tmp/places.sqlite" <<'PY'
+import sqlite3, sys
+c = sqlite3.connect(sys.argv[1])
+rows = c.execute("""
+  select coalesce(nullif(b.title, ''), p.url), coalesce(f.title, ''), p.url
+  from moz_bookmarks b join moz_places p on b.fk = p.id
+  left join moz_bookmarks f on b.parent = f.id
+  where b.type = 1 and p.url not like 'place:%'
+  order by b.dateAdded desc""")
+for title, folder, url in rows:
+    title = " ".join(title.split())
+    print(f"{title}  ·  {folder}\t{url}" if folder else f"{title}\t{url}")
+PY
+}
+
+# fuzzel shows the first column and returns the second
+url=$(list | fuzzel --dmenu --with-nth=1 --accept-nth=2 --width=70 --prompt=$'  ' \
+  --placeholder='Open bookmark…' --match-mode=fuzzy) || exit 0
+[ -n "$url" ] && setsid -f firefox "$url" >/dev/null 2>&1

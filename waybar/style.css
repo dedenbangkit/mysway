@@ -50,11 +50,13 @@ window#waybar.empty #window { padding: 0; }
 window#waybar.bottom { background: rgba(0, 0, 0, 0.5); }
 #custom-quote { color: #d1c182; font-style: italic; padding-right: 12px; }
 #mpd { padding: 0 12px; }
+#custom-bookmarks,
 #custom-copyq,
 #custom-record,
 #custom-screenshot {
   color: #d1c182; font-size: 17px; padding: 0 12px 0 6px;  /* icon glyphs overflow ~6px right */
 }
+#custom-bookmarks:hover,
 #custom-copyq:hover,
 #custom-record:hover,
 #custom-screenshot:hover { background: #2d3743; }

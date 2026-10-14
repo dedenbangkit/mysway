@@ -146,6 +146,7 @@
     ],
     "modules-right": [
       "mpd",
+      "custom/bookmarks",
       "custom/copyq",
       "custom/record",
       "custom/screenshot"
@@ -191,6 +192,11 @@
       "on-click-right": "~/.config/sway/scripts/music",
       "on-scroll-up": "mpc -q prev",
       "on-scroll-down": "mpc -q next"
+    },
+    "custom/bookmarks": {
+      "format": "\uf02e",
+      "tooltip-format": "Firefox bookmarks (Super+w)",
+      "on-click": "~/.config/sway/scripts/bookmarks"
     },
     "custom/copyq": {
       "format": "\uf0ea",
