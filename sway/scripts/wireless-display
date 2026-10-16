@@ -214,10 +214,10 @@ watch() {
 }
 
 # --- Audio -----------------------------------------------------------------------------
-sink_id() {  # sink_id <node.name prefix|exact>: PipeWire id of that audio sink
+sink_id() {  # sink_id <node.name|node.description>: PipeWire id of that audio sink
   pw-dump 2>/dev/null | jq -r --arg n "$1" 'first(.[] | select(.type == "PipeWire:Interface:Node"
     and .info.props["media.class"] == "Audio/Sink"
-    and ((.info.props["node.name"] // "") | startswith($n))) | .id) // empty'
+    and (.info.props["node.name"] == $n or .info.props["node.description"] == $n)) | .id) // empty'
 }
 audio_set_by_name() { local id; id=$(sink_id "$1"); [ -n "$id" ] && wpctl set-default "$id"; }
 default_sink() { wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null | sed -n 's/.*node\.name = "\(.*\)"/\1/p' | head -1; }
@@ -227,7 +227,7 @@ audio_toggle() {
     audio_set_by_name "$(get audio)"; rm -f "$state/audio"
     notify "Sound on laptop"
   else
-    local id prev; prev=$(default_sink); id=$(sink_id gnome_network_displays)
+    local id prev; prev=$(default_sink); id=$(sink_id "$(get name)")  # GND names its sink after the TV
     if [ -z "$id" ]; then notify "No TV audio output"; return; fi
     echo "$prev" >"$state/audio"; wpctl set-default "$id"
     notify "Sound on TV"
