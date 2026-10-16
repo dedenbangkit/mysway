@@ -56,7 +56,9 @@
       "return-type": "json",
       "interval": 3600,
       "signal": 9,
-      "format": "<span color='#d1c182'></span> {}"
+      "format": "<span color='#d1c182'></span> {}",
+      // Click: Software Updater; the count refreshes when it closes.
+      "on-click": "update-manager; pkill -RTMIN+9 -x waybar"
     },
     // Current/next meeting, up to a week ahead (scripts/next-meeting; reads a cache, Google at
     // most every 5 min). Click: calendar popup (Super+c).

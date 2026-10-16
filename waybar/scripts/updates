@@ -1,4 +1,30 @@
-#!/bin/sh
-# Number of upgradable apt packages.
-n=$(apt list --upgradable 2>/dev/null | grep -c upgradable)
-printf '{"text":"%s","tooltip":"%s package(s) can be upgraded"}\n' "$n" "$n"
+#!/usr/bin/python3
+# Number of upgradable apt packages, counted the way Software Updater (update-manager) does:
+# phased updates not yet rolled out to this machine are left out, so a click never finds
+# "everything is up to date" while the bar still shows a number.
+import json, random
+import apt
+
+machine_id = open("/etc/machine-id").read()  # trailing newline kept, as update-manager does
+rng = random.Random()
+
+def phased_out(pkg):
+    rec = pkg.candidate.record
+    if "Phased-Update-Percentage" not in rec:
+        return False
+    rng.seed(f"{pkg.candidate.source_name}-{pkg.candidate.version}-{machine_id}")
+    return rng.randint(0, 100) > int(rec["Phased-Update-Percentage"])
+
+cache = apt.Cache()
+ready = held = 0
+for pkg in cache:
+    if pkg.is_upgradable:
+        if phased_out(pkg):
+            held += 1
+        else:
+            ready += 1
+
+tip = f"{ready} package(s) can be upgraded"
+if held:
+    tip += f"\n{held} more held back (phased rollout)"
+print(json.dumps({"text": str(ready), "tooltip": tip + "\nClick: Software Updater"}))
