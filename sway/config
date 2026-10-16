@@ -26,7 +26,7 @@ client.focused          #2F2F2F #B8B8B8 #FFFFFF #3584E4   #B8B8B8
 client.focused_inactive #393939 #9A9996 #F6F5F4 #9A9996   #393939
 client.unfocused        #393939 #9A9996 #F6F5F4 #9A9996   #393939
 client.urgent           #393939 #E01B24 #FFFFFF #E01B24   #393939
-output * bg "~/Pictures/Wallpaper/Moody Black-and-White Mountain Panorama.png" fill
+output * bg ~/.local/state/sway/wallpaper fill
 # Laptop is the main display (0,0); LG monitor sits to its right (2560/1.5 = 1706)
 output eDP-1 scale 1.5 position 0 0
 output HDMI-A-2 position 1706 0

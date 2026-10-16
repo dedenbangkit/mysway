@@ -20,6 +20,7 @@ are symlinked into `~/.config`.
 | `gdm/` | Login screen: black background, smaller logo, black/square/blue fields and buttons (`install.sh`) |
 | `session/` | "Sway (NVIDIA)" login entry (`install.sh`) |
 | `applications/` | Launcher-entry overrides, symlinked into `~/.local/share/applications/` (Slack `--disable-gpu`) |
+| `nautilus/` | Nautilus right-click scripts, symlinked into `~/.local/share/nautilus/scripts/` (**Set as Sway wallpaper** → `sway/scripts/set-wallpaper`, which points `~/.local/state/sway/wallpaper` at the image and applies it; GNOME's own "Set as Background" has no effect on Sway) |
 | `udev/` | Hide Windows OS/RESTORE partitions from Nautilus (`install.sh`) |
 | `portal/` | Portal routing: GTK4 file chooser, and the screen-share output chooser for xdg-desktop-portal-wlr (`install.sh`) |
 | `docs/issues/` | Write-ups of problems hit on this machine |

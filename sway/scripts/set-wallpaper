@@ -1,0 +1,14 @@
+#!/bin/sh
+# Set the Sway wallpaper (Nautilus: right-click > Scripts > Set as Sway wallpaper).
+#   set-wallpaper FILE
+# Points ~/.local/state/sway/wallpaper at FILE (read by `output * bg` in the
+# sway config, so it survives reload/reboot) and applies it right away.
+f=${1:-$(printf '%s' "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | head -n1)}
+[ -f "$f" ] || { notify-send "Wallpaper" "Not a file: $f"; exit 1; }
+f=$(realpath "$f")
+link="$HOME/.local/state/sway/wallpaper"
+mkdir -p "${link%/*}"
+ln -sfn "$f" "$link"
+[ -n "$SWAYSOCK" ] || SWAYSOCK=$(ls /run/user/$(id -u)/sway-ipc.*.sock 2>/dev/null | head -n1)
+export SWAYSOCK
+swaymsg "output * bg \"$link\" fill" >/dev/null && notify-send "Wallpaper" "${f##*/}"
