@@ -1,0 +1,19 @@
+#!/bin/bash
+# Output chooser for xdg-desktop-portal-wlr (portal/xdpw-config, chooser_type=simple).
+# While a wireless-display session is up (sway/scripts/wireless-display writes the state file),
+# every screen-share request gets that session's output without asking: HEADLESS-n in Extend,
+# the laptop panel in Mirror. If that output is gone the request is declined; it never falls
+# back to another screen or to the picker.
+# Otherwise behaves like xdpw's default chooser: pick an output with slurp.
+share="${XDG_RUNTIME_DIR:-/run/user/$UID}/wireless-display/share"
+
+if [ -e "$share" ]; then
+  target=$(<"$share")
+  [ -n "$target" ] &&
+    swaymsg -t get_outputs | jq -e --arg o "$target" 'any(.[]; .name == $o and .active)' >/dev/null &&
+    echo "Monitor: $target"
+  exit 0
+fi
+
+out=$(slurp -o -f %o) && echo "Monitor: $out"
+exit 0

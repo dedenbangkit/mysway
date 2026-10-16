@@ -21,7 +21,12 @@ are symlinked into `~/.config`.
 | `session/` | "Sway (NVIDIA)" login entry (`install.sh`) |
 | `applications/` | Launcher-entry overrides, symlinked into `~/.local/share/applications/` (Slack `--disable-gpu`) |
 | `udev/` | Hide Windows OS/RESTORE partitions from Nautilus (`install.sh`) |
+| `portal/` | Portal routing: GTK4 file chooser, and the screen-share output chooser for xdg-desktop-portal-wlr (`install.sh`) |
 | `docs/issues/` | Write-ups of problems hit on this machine |
+
+## Features
+
+- [Wireless display (Super+p)](docs/wireless-display.md): Extend / Mirror to a TV over Miracast
 
 ## Known issues
 

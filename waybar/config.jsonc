@@ -24,6 +24,7 @@
       "battery",
       "pulseaudio",
       "custom/dnd",
+      "custom/wireless",
       "tray"
     ],
     "sway/workspaces": {
@@ -76,9 +77,10 @@
     },
     "network#ip": {
       "interval": 30,
-      "format": "{ipaddr}",
+      // icon only; the address is in the tooltip (kept off screen, e.g. on a wireless display)
+      "format": "",
       "format-disconnected": "",
-      "tooltip-format": "{ifname} via {gwaddr}"
+      "tooltip-format": "{ipaddr}/{cidr} on {ifname}\nvia {gwaddr}"
     },
     "clock": {
       "interval": 10,
@@ -116,6 +118,14 @@
       "interval": "once",
       "signal": 11,
       "on-click": "~/.config/sway/scripts/dnd"
+    },
+    // Wireless display (Super+p): gold = off, blue = connected (tooltip: Extend/Mirror), grey = connecting; click = the Super+p menu
+    "custom/wireless": {
+      "exec": "~/.config/sway/scripts/wireless-display status",
+      "return-type": "json",
+      "interval": "once",
+      "signal": 12,
+      "on-click": "~/.config/sway/scripts/wireless-display"
     },
     "pulseaudio": {
       "format": "<span color='#d1c182'>{icon}</span> {volume}%",

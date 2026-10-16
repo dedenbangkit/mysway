@@ -12,4 +12,7 @@ cat > "$data/dbus-1/services/org.freedesktop.impl.portal.desktop.gtk4fc.service"
 Name=org.freedesktop.impl.portal.desktop.gtk4fc
 Exec=$here/gtk4-filechooser
 SVC
-systemctl --user restart xdg-desktop-portal.service
+# Screen sharing: xdg-desktop-portal-wlr asks sway/scripts/screencast-chooser which output to share
+mkdir -p "$HOME/.config/xdg-desktop-portal-wlr"
+ln -sfn "$here/xdpw-config" "$HOME/.config/xdg-desktop-portal-wlr/config"
+systemctl --user restart xdg-desktop-portal.service xdg-desktop-portal-wlr.service

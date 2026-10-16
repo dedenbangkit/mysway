@@ -1,0 +1,4 @@
+[screencast]
+# sway/scripts/screencast-chooser: wireless-display sessions pick their output, else slurp
+chooser_type=simple
+chooser_cmd=$HOME/.config/sway/scripts/screencast-chooser

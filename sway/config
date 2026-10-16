@@ -307,6 +307,9 @@ bindcode 156 exec $scripts/quick-menu
 bindsym $mod+q exec $scripts/quick-menu
 for_window [app_id="quick-float"] floating enable, resize set 1400 700
 
+## Launch // Wireless Display: Extend / Mirror / Disconnect // <> p ##
+bindsym $mod+p exec $scripts/wireless-display
+
 ## Launch // Timezones // <> z ##
 bindsym $mod+z exec $scripts/tzone
 for_window [app_id="tzone"] floating enable, move position center

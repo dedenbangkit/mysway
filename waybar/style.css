@@ -45,6 +45,12 @@ window#waybar.empty #window { padding: 0; }
 #custom-dnd { color: #d1c182; padding: 0 12px 0 6px; }  /* bell glyph overflows right */
 #custom-dnd.on { color: #c92c2c; }
 #custom-dnd:hover { background: #2d3743; }
+#custom-wireless { padding: 0 12px 0 6px; }
+#custom-wireless.extend { color: #3584E4; }
+#custom-wireless.mirror { color: #3584E4; }
+#custom-wireless.off { color: #d1c182; }
+#custom-wireless.connecting { color: #777777; }
+#custom-wireless:hover { background: #2d3743; }
 
 /* Bottom bar (old conf.d.bottom): focused window (quote off for now) + clipboard, record and screenshot buttons */
 window#waybar.bottom { background: rgba(0, 0, 0, 0.5); }

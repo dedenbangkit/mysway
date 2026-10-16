@@ -4,3 +4,7 @@
 # Turning it off shows whatever arrived meanwhile; Super+Shift+n restores dismissed ones.
 [mode=do-not-disturb]
 invisible=1
+
+# Presenting (wireless display, Extend): popups stay on the laptop, never on the TV's screen.
+[mode=presenting]
+output=eDP-1

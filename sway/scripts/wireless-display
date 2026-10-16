@@ -1,0 +1,318 @@
+#!/bin/bash
+# Wireless display (Super+p): Miracast to a TV, like Windows Win+P.
+#   wireless-display              fuzzel menu: Extend / Mirror, or the session's options while connected
+#   wireless-display extend|mirror [name]   connect without the menu (first display found, or that name)
+#   wireless-display disconnect   hang up, remove the virtual output, put workspaces back
+#   wireless-display status       JSON for the waybar module
+# Discovery talks to NetworkManager (Wi-Fi Direct) directly; the stream itself is GNOME Network
+# Displays' stream binary (gnome-network-displays package), run as a user unit. Extend adds a
+# virtual HEADLESS-n output and sends only that; Mirror sends the focused screen.
+# sway/scripts/screencast-chooser picks the output for the portal; see docs/wireless-display.md.
+set -u
+state="${XDG_RUNTIME_DIR:-/run/user/$UID}/wireless-display"
+stream_unit=wireless-display-stream
+watch_unit=wireless-display-watch
+stock_bin=/usr/libexec/gnome-network-displays-stream
+patched_bin=~/.local/libexec/gnd-stream-nocursor  # see patch_stream_bin
+stream_bin=${WD_STREAM_BIN:-}
+tv_mode=1920x1080@60Hz  # what Miracast sinks take; the TV scales it up
+NM=org.freedesktop.NetworkManager
+# displays streamed to before; only these connect without asking (a lone new one, e.g. the TV
+# in the next meeting room, always goes through the picker)
+known="${XDG_STATE_HOME:-$HOME/.local/state}/wireless-display/known"
+
+nid=
+notify() {  # notify <text> [urgency]: one notification, replaced on each step
+  local id
+  id=$(notify-send -a 'Wireless display' -i video-display -u "${2:-normal}" -p \
+    ${nid:+-r "$nid"} 'Wireless display' "$1")
+  nid=$id
+  [ -d "$state" ] && echo "$nid" >"$state/nid"
+}
+waybar_refresh() { pkill -RTMIN+12 -x waybar; }
+active() { [ -s "$state/mode" ]; }
+get() { cat "$state/$1" 2>/dev/null; }
+
+# GND asks the TV about the "microsoft_cursor" extension (the sink draws the pointer, the source
+# sends its position) but never sends positions, so Samsung TVs show their own pointer stuck in
+# the top-left corner. A copy of the stream binary with that query name swapped for another
+# 16-char one (a duplicate "wfd_display_edid" query) avoids it. Redone when apt updates GND;
+# if the string isn't found, the stock binary is used (works, with the stray pointer).
+patch_stream_bin() {
+  [ -n "$stream_bin" ] && return
+  stream_bin=$stock_bin
+  if [ ! -x "$patched_bin" ] || [ "$stock_bin" -nt "$patched_bin" ]; then
+    mkdir -p "${patched_bin%/*}"
+    perl -pe 's/microsoft_cursor\0/wfd_display_edid\0/g' "$stock_bin" >"$patched_bin.tmp" &&
+      [ "$(cmp -l "$stock_bin" "$patched_bin.tmp" | wc -l)" -eq 16 ] &&
+      chmod +x "$patched_bin.tmp" && mv "$patched_bin.tmp" "$patched_bin" || rm -f "$patched_bin.tmp"
+  fi
+  [ -x "$patched_bin" ] && [ "$patched_bin" -nt "$stock_bin" ] && stream_bin=$patched_bin
+}
+
+# --- NetworkManager Wi-Fi P2P -------------------------------------------------------------
+p2p_dev() {
+  local iface
+  iface=$(nmcli -t -f DEVICE,TYPE dev | awk -F: '$2 == "wifi-p2p" { print $1; exit }')
+  [ -n "$iface" ] || return 1
+  # not GetDeviceByIpIface: the idle P2P device often has no IP interface
+  nmcli -g GENERAL.DBUS-PATH device show "$iface"
+}
+prop() {  # prop <object> <interface> <property>
+  busctl --system --json=short get-property $NM "$1" "$2" "$3" 2>/dev/null | jq -c '.data'
+}
+find_start() { busctl --system call $NM "$1" $NM.Device.WifiP2P StartFind 'a{sv}' 1 timeout i 30 >/dev/null 2>&1; }
+find_stop() { busctl --system call $NM "$1" $NM.Device.WifiP2P StopFind >/dev/null 2>&1; }
+sinks() {  # sinks <dev>: "peer-path<TAB>name" for every Miracast sink seen
+  local p name wfd
+  for p in $(prop "$1" $NM.Device.WifiP2P Peers | jq -r '.[]'); do
+    wfd=$(prop "$p" $NM.WifiP2PPeer WfdIEs)
+    # WFD device-info subelement: byte 4 bits 0-1 = device type (0 source, 1/2 sink, 3 dual)
+    [ "$(jq '.[4] // 0 | . % 4' <<<"${wfd:-[]}")" -ne 0 ] || continue
+    name=$(prop "$p" $NM.WifiP2PPeer Name | jq -r .)
+    printf '%s\t%s\n' "$p" "$name"
+  done
+}
+discover() {  # discover <dev> [name]: wait up to 10 s for sinks (or that one), print them
+  local i found
+  for i in $(seq 20); do
+    found=$(sinks "$1")
+    if [ -n "${2:-}" ]; then
+      found=$(awk -F'\t' -v n="$2" '$2 == n' <<<"$found")
+      [ -n "$found" ] && break
+    elif [ -n "$found" ] && [ "$i" -ge 4 ]; then
+      break  # give a second display two seconds to show up
+    fi
+    sleep 0.5
+  done
+  [ -n "$found" ] && printf '%s\n' "$found"
+}
+
+# --- Connect / disconnect ---------------------------------------------------------------
+connect() {  # connect <extend|mirror> <dev> <peer> <name>
+  local mode=$1 dev=$2 peer=$3 name=$4 before out share
+  mkdir -p "$state"
+  echo "$name" >"$state/name"
+  echo "$nid" >"$state/nid"
+  swaymsg -t get_workspaces >"$state/workspaces.json"
+
+  if [ "$mode" = extend ]; then
+    before=$(swaymsg -t get_outputs | jq -r '.[].name')
+    swaymsg -q create_output
+    out=$(swaymsg -t get_outputs | jq -r '.[].name' | grep -vxF -f <(echo "$before") | head -1)
+    if [ -z "$out" ]; then
+      notify "Couldn't create the virtual screen" critical
+      cleanup; return 1
+    fi
+    echo "$out" >"$state/output"
+    swaymsg -q output "$out" mode "$tv_mode"
+    makoctl mode -a presenting >/dev/null  # notifications stay on the laptop (mako/config)
+    share=$out
+  else
+    share=$(swaymsg -t get_outputs | jq -r '[.[] | select(.active and (.name | startswith("HEADLESS") | not))]
+      | (map(select(.focused)) + .)[0].name')
+  fi
+  echo "$share" >"$state/share"  # read by screencast-chooser; written before the stream asks
+  echo "$mode" >"$state/mode"
+
+  # LimitCORE=0: gnome-network-displays-stream 0.99 double-frees on exit; a core dump delays disconnect ~7 s
+  systemd-run --user -q --collect --unit=$stream_unit -p LimitCORE=0 -E G_MESSAGES_DEBUG=Gnd \
+    "$stream_bin" "gnome-network-displays://sink?peer=$peer&protocol=3&device=$dev" || {
+    notify "Couldn't start the stream" critical; cleanup; return 1
+  }
+  date +%s >"$state/started"
+  systemd-run --user -q --collect --unit=$watch_unit -E WD_STREAM_BIN="$stream_bin" "$0" _watch "$dev" "$peer"
+  waybar_refresh
+}
+
+restore_workspaces() {  # put workspaces back on the outputs they had before connecting
+  local saved=$state/workspaces.json now outputs
+  [ -s "$saved" ] || return 0
+  outputs=$(swaymsg -t get_outputs | jq -c '[.[] | select(.active) | .name]')
+  now=$(swaymsg -t get_workspaces)
+  # move the ones that ended up elsewhere, then show what was visible, focused last
+  jq -r --argjson now "$now" --argjson outs "$outputs" '
+    .[] | select(.output as $o | $outs | index($o)) | . as $w
+    | select(any($now[]; .name == $w.name and .output != $w.output))
+    | "workspace --no-auto-back-and-forth \"\(.name)\"; move workspace to output \"\(.output)\""' "$saved" |
+    while read -r cmd; do swaymsg -q "$cmd"; done
+  jq -r '(map(select(.visible and (.focused | not))) + map(select(.focused)))[]
+    | "workspace --no-auto-back-and-forth \"\(.name)\""' "$saved" |
+    while read -r cmd; do swaymsg -q "$cmd" 2>/dev/null; done
+}
+
+cleanup() {  # idempotent teardown; safe to call from the menu and from the watcher
+  exec 9>"${XDG_RUNTIME_DIR:-/tmp}/wireless-display.lock"
+  flock 9
+  systemctl --user stop $stream_unit 2>/dev/null
+  local out audio
+  out=$(get output)
+  if [ -n "$out" ] && swaymsg -t get_outputs | jq -e --arg o "$out" 'any(.[]; .name == $o)' >/dev/null; then
+    swaymsg -q output "$out" unplug
+    restore_workspaces
+  fi
+  makoctl mode -r presenting >/dev/null 2>&1
+  audio=$(get audio)
+  [ -n "$audio" ] && audio_set_by_name "$audio"
+  rm -rf "$state"
+  waybar_refresh
+}
+
+disconnect() {
+  local name; name=$(get name); nid=$(get nid)
+  systemctl --user stop $watch_unit 2>/dev/null
+  cleanup
+  notify "Disconnected"
+}
+
+# --- Watcher: follows the stream, retries once, cleans up when it ends --------------------
+stream_state() {
+  journalctl --user -u $stream_unit --since "@$(get started)" -o cat --no-pager 2>/dev/null |
+    grep -oE 'ND_SINK_STATE_[A-Z_]+' | tail -1
+}
+watch() {
+  local dev=$1 peer=$2 tries=1 st streaming="" t0 name mode
+  nid=$(get nid); name=$(get name); mode=$(get mode)
+  t0=$(date +%s)
+  while active; do
+    st=$(stream_state)
+    if [ -z "$streaming" ] && [ "$st" = ND_SINK_STATE_STREAMING ]; then
+      streaming=1
+      echo 1 >"$state/streaming"
+      mkdir -p "${known%/*}"; grep -qxF -- "$name" "$known" 2>/dev/null || echo "$name" >>"$known"
+      waybar_refresh
+      if [ "$mode" = extend ]; then
+        notify "Extending to $name"
+      else
+        notify "Mirroring to $name"
+      fi
+    fi
+    if ! systemctl --user is-active -q $stream_unit || [ "$st" = ND_SINK_STATE_ERROR ] ||
+      { [ -n "$streaming" ] && [ "$st" = ND_SINK_STATE_DISCONNECTED ]; } ||
+      { [ -z "$streaming" ] && [ $(($(date +%s) - t0)) -gt 70 ]; }; then
+      if [ -z "$streaming" ] && [ "$tries" -lt 2 ]; then
+        # Samsung TVs often drop the first handshake (e.g. while their Allow prompt is up)
+        tries=$((tries + 1)); t0=$(date +%s)
+        systemctl --user stop $stream_unit 2>/dev/null
+        notify "Retrying $name…"
+        sleep 2
+        date +%s >"$state/started"
+        systemd-run --user -q --collect --unit=$stream_unit -p LimitCORE=0 -E G_MESSAGES_DEBUG=Gnd \
+          "$stream_bin" "gnome-network-displays://sink?peer=$peer&protocol=3&device=$dev"
+        continue
+      fi
+      cleanup
+      if [ -n "$streaming" ]; then
+        notify "$name disconnected"
+      else
+        notify "Couldn't connect to $name" critical
+      fi
+      exit 0
+    fi
+    sleep 1
+  done
+}
+
+# --- Audio -----------------------------------------------------------------------------
+sink_id() {  # sink_id <node.name prefix|exact>: PipeWire id of that audio sink
+  pw-dump 2>/dev/null | jq -r --arg n "$1" 'first(.[] | select(.type == "PipeWire:Interface:Node"
+    and .info.props["media.class"] == "Audio/Sink"
+    and ((.info.props["node.name"] // "") | startswith($n))) | .id) // empty'
+}
+audio_set_by_name() { local id; id=$(sink_id "$1"); [ -n "$id" ] && wpctl set-default "$id"; }
+default_sink() { wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null | sed -n 's/.*node\.name = "\(.*\)"/\1/p' | head -1; }
+audio_on_tv() { [ -n "$(get audio)" ]; }
+audio_toggle() {
+  if audio_on_tv; then
+    audio_set_by_name "$(get audio)"; rm -f "$state/audio"
+    notify "Sound on laptop"
+  else
+    local id prev; prev=$(default_sink); id=$(sink_id gnome_network_displays)
+    if [ -z "$id" ]; then notify "No TV audio output"; return; fi
+    echo "$prev" >"$state/audio"; wpctl set-default "$id"
+    notify "Sound on TV"
+  fi
+}
+
+# --- Menus -----------------------------------------------------------------------------
+menu() {  # menu <lines> <placeholder>, entries on stdin
+  fuzzel --dmenu --lines="$1" --width=34 --prompt=$'  ' --placeholder="$2" --match-mode=fuzzy
+}
+
+start() {  # start <extend|mirror> [name]
+  local mode=$1 want=${2:-} dev found peer name n
+  dev=$(p2p_dev) || { notify "No Wi-Fi Direct device" critical; return 1; }
+  patch_stream_bin
+  if active; then nid=$(get nid); systemctl --user stop $watch_unit 2>/dev/null; cleanup; sleep 1; fi
+  notify "Searching…"
+  find_start "$dev"
+  found=$(discover "$dev" "$want")
+  find_stop "$dev"
+  n=$(grep -c . <<<"$found")
+  if [ -z "$found" ]; then
+    notify "No wireless display found" critical
+    return 1
+  elif [ -z "$want" ] && { [ "$n" -gt 1 ] || ! grep -qxF -- "$(cut -f2 <<<"$found")" "$known" 2>/dev/null; }; then
+    # picker: displays used before first
+    name=$(cut -f2 <<<"$found" | awk -v k="$known" 'BEGIN { while ((getline l < k) > 0) seen[l] = 1 }
+        { print (($0 in seen) ? 0 : 1) "\t" $0 }' | sort -s -k1,1 | cut -f2 |
+      menu "$n" 'Display…') || { makoctl dismiss -n "$nid" 2>/dev/null; return 0; }
+    found=$(awk -F'\t' -v n="$name" '$2 == n' <<<"$found" | head -1)
+  fi
+  peer=$(cut -f1 <<<"$found"); name=$(cut -f2 <<<"$found")
+  notify "Connecting to $name…"
+  connect "$mode" "$dev" "$peer" "$name"
+}
+
+main_menu() {
+  local sel mode other audio
+  if active; then
+    nid=$(get nid); mode=$(get mode)
+    if [ "$mode" = extend ]; then other=Mirror; else other=Extend; fi
+    if audio_on_tv; then audio=$'  Sound on laptop'; else audio=$'  Sound on TV'; fi
+    [ -s "$state/streaming" ] && status=Connected || status=Connecting
+    sel=$(printf '%s\n' \
+        $'  '"$status: $(get name) · ${mode^}" \
+        $'  '"Switch to $other" \
+        "$audio" \
+        $'  Disconnect' \
+      | menu 4 'Wireless display…') || exit 0
+    case "${sel#*  }" in
+      'Switch to '*) start "${other,,}" "$(get name)" ;;
+      'Sound on '*)  audio_toggle ;;
+      'Disconnect')  disconnect ;;
+    esac
+  else
+    sel=$(printf '%s\n' \
+        $'  Extend: TV as a second screen' \
+        $'  Mirror: TV shows this screen' \
+      | menu 2 'Wireless display…') || exit 0
+    case "${sel#*  }" in
+      Extend*) start extend ;;
+      Mirror*) start mirror ;;
+    esac
+  fi
+}
+
+status() {
+  if ! active; then
+    printf '{"text":"\\uf26c","class":"off","tooltip":"Wireless display: off\\nClick: Extend / Mirror (Super+p)"}\n'
+    return
+  fi
+  local name mode; name=$(get name); mode=$(get mode)
+  if [ -s "$state/streaming" ]; then
+    printf '{"text":"\\uf26c","class":"%s","tooltip":"%s: %s\\nClick: wireless display menu"}\n' \
+      "$mode" "${mode^}" "$name"
+  else
+    printf '{"text":"\\uf26c","class":"connecting","tooltip":"Connecting to %s…"}\n' "$name"
+  fi
+}
+
+case "${1:-}" in
+  '')          main_menu ;;
+  extend|mirror) start "$1" "${2:-}" ;;
+  disconnect)  active && disconnect ;;
+  status)      status ;;
+  _watch)      watch "$2" "$3" ;;
+  *) echo "usage: wireless-display [extend|mirror [name]|disconnect|status]" >&2; exit 2 ;;
+esac
