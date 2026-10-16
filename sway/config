@@ -49,13 +49,18 @@ input type:touchpad {
     middle_emulation enabled
 }
 
-### Touchpad gestures: 3-finger swipes switch workspace (2-finger pinch left to apps for zoom)
-## Gestures // Next workspace (this screen) // 3 fingers → or ↑ ##
-bindgesture swipe:3:right workspace next_on_output
-bindgesture swipe:3:up workspace next_on_output
-## Gestures // Previous workspace (this screen) // 3 fingers ← or ↓ ##
-bindgesture swipe:3:left workspace prev_on_output
-bindgesture swipe:3:down workspace prev_on_output
+### Touchpad gestures: 3-finger swipes move focus, 4-finger swipes switch workspace (2-finger pinch left to apps for zoom)
+## Gestures // Next workspace (this screen) // 4 fingers → or ↑ ##
+bindgesture swipe:4:right workspace next_on_output
+bindgesture swipe:4:up workspace next_on_output
+## Gestures // Previous workspace (this screen) // 4 fingers ← or ↓ ##
+bindgesture swipe:4:left workspace prev_on_output
+bindgesture swipe:4:down workspace prev_on_output
+## Gestures // Focus window in that direction (this workspace) // 3 fingers ← → ↑ ↓ ##
+bindgesture swipe:3:left focus left
+bindgesture swipe:3:right focus right
+bindgesture swipe:3:up focus up
+bindgesture swipe:3:down focus down
 
 ### Idle / lock: lock after 15 min, screen off after 30, lock before sleep
 exec swayidle -w \
