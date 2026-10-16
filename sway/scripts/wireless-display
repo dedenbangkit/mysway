@@ -180,6 +180,7 @@ watch() {
       streaming=1
       echo 1 >"$state/streaming"
       mkdir -p "${known%/*}"; grep -qxF -- "$name" "$known" 2>/dev/null || echo "$name" >>"$known"
+      pin_grabber
       waybar_refresh
       if [ "$mode" = extend ]; then
         notify "Extending to $name"
@@ -221,8 +222,20 @@ sink_id() {  # sink_id <node.name|node.description>: PipeWire id of that audio s
 }
 audio_set_by_name() { local id; id=$(sink_id "$1"); [ -n "$id" ] && wpctl set-default "$id"; }
 default_sink() { wpctl inspect @DEFAULT_AUDIO_SINK@ 2>/dev/null | sed -n 's/.*node\.name = "\(.*\)"/\1/p' | head -1; }
+# GND's grabber records "the default sink's monitor" with no fixed target, so WirePlumber would
+# move it along with the default and the TV would replay the laptop's sound. Pin it to the TV's sink.
+pin_grabber() {
+  local name grabber sink
+  name=$(get name)
+  read -r grabber sink < <(pw-dump 2>/dev/null | jq -r --arg n "$name" '
+    [first(.[] | select(.info.props["node.name"]? == "GNOME Network Displays Audio Grabber for \($n)") | .id),
+     first(.[] | select(.info.props["media.class"]? == "Audio/Sink" and .info.props["node.description"] == $n)
+       | .info.props["node.name"])] | @tsv')
+  [ -n "$grabber" ] && [ -n "$sink" ] && pw-metadata -n default "$grabber" target.object "$sink" >/dev/null
+}
 audio_on_tv() { [ -n "$(get audio)" ]; }
 audio_toggle() {
+  pin_grabber
   if audio_on_tv; then
     audio_set_by_name "$(get audio)"; rm -f "$state/audio"
     notify "Sound on laptop"

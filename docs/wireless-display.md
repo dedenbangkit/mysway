@@ -81,8 +81,10 @@ turned on, allow DHCP (UDP 67) and RTSP (TCP 7236) on `p2p-wlo1-*`.
 - **1080p with noticeable lag** (Miracast buffers; not measured here). Fine for slides, documents,
   video; not for games. The virtual
   screen is 16:9 1920×1080; Mirror of the 16:10 laptop panel is letterboxed.
-- **Audio** goes to the laptop until you pick *Sound on TV* (GND creates a "GNOME Network
-  Displays" sink; the menu switches the default sink and restores it on disconnect).
+- **Audio** goes to the laptop until you pick *Sound on TV*. GND creates a sink named after the TV
+  and records its monitor; the menu switches the default sink (restored on disconnect) and pins
+  GND's grabber to the TV's sink, otherwise WirePlumber moves it with the default and the TV
+  replays the laptop's sound.
 - **Extend shows what you put there.** Anything opened while the TV's workspace is focused
   (including fuzzel menus and floating popups) appears on the TV. The bars and wallpaper show
   there too (top bar: CPU, clock, next calendar event; the IP address is an icon, hover for it).
