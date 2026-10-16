@@ -1,0 +1,23 @@
+#!/bin/sh
+# Speaker volume / mute and mic mute (laptop keys) with an on-screen indicator via mako.
+#   volume up|down|mute|mic
+sink=@DEFAULT_AUDIO_SINK@
+case "$1" in
+  up)   wpctl set-volume -l 1.0 "$sink" 5%+ ;;
+  down) wpctl set-volume "$sink" 5%- ;;
+  mute) wpctl set-mute "$sink" toggle ;;
+  mic)
+    wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+    case $(wpctl get-volume @DEFAULT_AUDIO_SOURCE@) in
+      *MUTED*) msg="Microphone muted" ;;
+      *)       msg="Microphone on" ;;
+    esac
+    exec notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:mic "$msg" ;;
+esac
+# "Volume: 0.45" or "Volume: 0.45 [MUTED]"
+set -- $(wpctl get-volume "$sink")
+pct=$(awk "BEGIN { printf \"%d\", $2 * 100 + 0.5 }")
+title="Volume $pct%"
+[ "$3" = "[MUTED]" ] && title="Volume muted ($pct%)"
+notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:volume \
+  -h int:value:"$pct" "$title"

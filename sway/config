@@ -299,10 +299,10 @@ mode "resize" {
 bindsym $mod+r mode "resize"
 
 ### Laptop keys
-bindsym XF86AudioRaiseVolume exec wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
-bindsym XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
-bindsym XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-bindsym XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym XF86AudioRaiseVolume exec $scripts/volume up
+bindsym XF86AudioLowerVolume exec $scripts/volume down
+bindsym XF86AudioMute exec $scripts/volume mute
+bindsym XF86AudioMicMute exec $scripts/volume mic
 
 ### Music (mpd): media keys, Super+m rmpc, Super+Shift+m song picker
 bindsym XF86AudioPlay exec mpc -q toggle
@@ -344,8 +344,8 @@ for_window [app_id="emacs" title="^orgnotes$"] floating enable, resize set 1000 
 bindcode --no-repeat $mod+Shift+201 exec $scripts/ai-chat
 for_window [app_id="oterm"] floating enable, resize set 1100 750, move position center, move scratchpad, scratchpad show
 
-bindsym XF86MonBrightnessUp exec brightnessctl set 5%+
-bindsym XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym XF86MonBrightnessUp exec $scripts/brightness up
+bindsym XF86MonBrightnessDown exec $scripts/brightness down
 
 ### Screenshots (saved to ~/Pictures/Screenshots as JPEG, also copied to clipboard): Print = menu, Shift = area, Ctrl = window
 bindsym Print exec $scripts/screenshot

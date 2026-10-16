@@ -20,7 +20,9 @@ set_var GRUB_TIMEOUT_STYLE menu
 set_var GRUB_TIMEOUT 5
 # The Micron 2500 behind Intel VMD loses I/O completion interrupts ("timeout, completion polled"), stalling disk I/O.
 # APST off alone didn't fix it; also turn off PCIe ASPM, and cut the stall from 30s to 5s when it still happens.
-set_var GRUB_CMDLINE_LINUX_DEFAULT '"fbcon=font:TER16x32 nvme_core.default_ps_max_latency_us=0 pcie_aspm=off nvme_core.io_timeout=5"'
+# The Samsung OLED panel (eDP-1) ignores PWM backlight; i915 must drive it over DPCD (Intel interface),
+# as the kernel itself suggests at boot. Without it brightnessctl changes intel_backlight but not the screen.
+set_var GRUB_CMDLINE_LINUX_DEFAULT '"fbcon=font:TER16x32 nvme_core.default_ps_max_latency_us=0 pcie_aspm=off nvme_core.io_timeout=5 i915.enable_dpcd_backlight=3"'
 set_var GRUB_THEME '"/boot/grub/themes/mysway/theme.txt"'
 # "auto" let the firmware pick a low mode, so the theme came out huge; ask for native first
 set_var GRUB_GFXMODE 2560x1600x32,1920x1200x32,auto

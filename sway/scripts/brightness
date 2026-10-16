@@ -1,0 +1,12 @@
+#!/bin/sh
+# Screen brightness (Fn+F7/F8) with an on-screen indicator via mako.
+#   brightness up|down
+# The OLED panel only answers on intel_backlight (needs i915.enable_dpcd_backlight=3).
+dev=intel_backlight
+case "$1" in
+  up)   brightnessctl -q -d "$dev" set 5%+ ;;
+  down) brightnessctl -q -d "$dev" set 5%- ;;
+esac
+pct=$(( $(brightnessctl -d "$dev" get) * 100 / $(brightnessctl -d "$dev" max) ))
+notify-send -a osd -t 1200 -h string:x-canonical-private-synchronous:brightness \
+  -h int:value:"$pct" "Brightness $pct%"
