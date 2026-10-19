@@ -1,0 +1,8 @@
+#!/bin/sh
+# Set the system timezone from the public IP (run on every sway reload, before
+# waybar restarts, so the bar clock follows you when travelling).
+# Offline / lookup failure: keeps the current timezone.
+tz=$(curl -fs --max-time 3 https://ipapi.co/timezone) || exit 0
+[ -f "/usr/share/zoneinfo/$tz" ] || exit 0
+[ "$tz" = "$(timedatectl show -p Timezone --value)" ] && exit 0
+timedatectl set-timezone "$tz" </dev/null && notify-send "Timezone" "$tz"

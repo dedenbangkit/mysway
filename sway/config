@@ -352,8 +352,9 @@ bindsym Print exec $scripts/screenshot
 bindsym Shift+Print exec $scripts/screenshot area
 bindsym Ctrl+Print exec $scripts/screenshot window
 
-### Bar (two waybar bars: top + bottom, see ~/.config/waybar). Restarted on every reload.
-exec_always sh -c 'pkill -x waybar; exec waybar'
+### Bar (two waybar bars: top + bottom, see ~/.config/waybar). Restarted on every reload,
+### after auto-timezone sets the system TZ from the public IP.
+exec_always sh -c '$scripts/auto-timezone; pkill -x waybar; exec waybar'
 
 include /etc/sway/config.d/*
 
