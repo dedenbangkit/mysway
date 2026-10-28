@@ -29,5 +29,5 @@ case "$1" in
     form='(mysway-notes-open)' ;;
 esac
 
-emacsclient -e "(load \"$el\" nil t)" >/dev/null || exit 1
+emacsclient -a '' -e "(load \"$el\" nil t)" >/dev/null || exit 1
 emacsclient -n -c -F '((name . "orgnotes"))' -e "$form" >/dev/null
