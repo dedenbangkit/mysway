@@ -1,4 +1,20 @@
 #!/bin/sh
 # Keep the clipboard alive after the app you copied from closes (Wayland
 # drops it otherwise): when it goes empty, CopyQ puts its latest item back.
-exec wl-paste --watch sh -c 'cat >/dev/null; [ "$CLIPBOARD_STATE" = nil ] || [ "$CLIPBOARD_STATE" = clear ] && copyq select 0'
+#
+# Apps (browsers, Electron) often clear the clipboard for a moment while they
+# set a new one. Restoring immediately raced that and put the OLD item back,
+# so wait a bit and only restore if it is still empty.
+#
+# Images are not restored: when CopyQ re-provides an image item, its
+# clipboard monitor segfaults in libKF6GuiAddons (KSystemClipboard ->
+# QMimeData::imageData). At login the clipboard is empty, so this used to
+# restore a screenshot and crash CopyQ right after startup.
+exec wl-paste --watch sh -c '
+  cat >/dev/null
+  [ "$CLIPBOARD_STATE" = nil ] || [ "$CLIPBOARD_STATE" = clear ] || exit 0
+  sleep 0.5
+  wl-paste --list-types >/dev/null 2>&1 && exit 0
+  copyq read "?" 0 | grep -q "^image/" && exit 0
+  copyq select 0
+'
